@@ -1,0 +1,213 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FishGrid</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e0f7fa;
+            color: #006064;
+            padding-top: 60px;
+        }
+        .navbar {
+            background-color: rgba(0, 151, 167, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 151, 167, 0.1);
+            padding: 0.5rem 1rem;
+        }
+        .navbar-brand {
+            color: #006064 !important;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            margin-right: 2rem;
+        }
+        .navbar-brand img {
+            width: 120px;
+            height: auto;
+        }
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-nav .nav-link, .custom-link {
+            color: #006064 !important;
+            margin-left: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        .navbar-nav .nav-link:hover, .custom-link:hover {
+            background-color: rgba(0, 151, 167, 0.1);
+        }
+        .navbar-nav .nav-link i {
+            margin-right: 5px;
+        }
+        .hero-section {
+            background-image: url('{% static "img/fish_page.jpg" %}');
+            background-size: cover;
+            background-position: center;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+        .hero-content {
+            background-color: rgba(0, 96, 100, 0.8);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: #fff;
+            max-width: 600px;
+        }
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .btn-primary {
+            background-color: #00838f;
+            border-color: #00838f;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #006064;
+            border-color: #006064;
+        }
+        .site-footer {
+            background-color: #00838f;
+            color: #fff;
+            padding: 40px 0;
+            margin-top: 50px;
+        }
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: none;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background-color: #00838f;
+            color: #fff;
+            border-radius: 50%;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        .scroll-to-top:hover {
+            opacity: 1;
+        }
+        .scroll-to-top.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'main:index' %}">
+                <img src="{% static 'img/fish-log.png' %}" alt="FishGrid Logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'main:index' %}"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services"><i class="fas fa-concierge-bell"></i> Services</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a href="{% url 'main:login_page' %}" class="custom-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'main:register_page' %}" class="custom-link"><i class="fas fa-user-plus"></i> Sign up</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="deliveryDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bicycle"></i> Delivery Partner
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="deliveryDropdown">
+                            <a class="dropdown-item" href="{% url 'delivery_system:delivery_login' %}">
+                                <i class="fas fa-sign-in-alt"></i> Partner Login
+                            </a>
+                            <a class="dropdown-item" href="{% url 'delivery_system:apply' %}">
+                                <i class="fas fa-user-plus"></i> Become a Partner
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% block content %}
+    <section class="hero-section" id="home">
+        <div class="hero-content">
+            <h1>Welcome to FishGrid</h1>
+            <p class="lead">Discover the best aquarium solutions for your underwater world. Our expert team is dedicated to enhancing aquatic life and promoting sustainable practices.</p>
+            <a href="#services" class="btn btn-primary btn-lg">Explore Our Services</a>
+        </div>
+    </section>
+
+    
+    {% endblock %}
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>About Fish Grid</h5>
+                    <p>We are dedicated to creating thriving underwater ecosystems and providing innovative aquarium solutions for enthusiasts and professionals alike.</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Contact</h5>
+                    <p>Email: fishgridin@gmail.com<br>Phone: +91 9876543210</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <a href="#" id="scroll-to-top" class="scroll-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const scrollToTopBtn = $('#scroll-to-top');
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 100) {
+                    scrollToTopBtn.addClass('show');
+                } else {
+                    scrollToTopBtn.removeClass('show');
+                }
+            });
+            scrollToTopBtn.click(function(e) {
+                e.preventDefault();
+                $('html, body').animate({scrollTop: 0}, '300');
+            });
+        });
+    </script>
+</body>
+</html>

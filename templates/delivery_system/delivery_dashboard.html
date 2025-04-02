@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fontawesome.min.css' %}">
+    <style>
+        body {
+            background-color: #e9ecef; /* Light gray background */
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff; /* Blue header */
+            color: white; /* White text for better contrast */
+            border-bottom: 1px solid #dee2e6;
+        }
+        .list-group-item {
+            border: none;
+            border-radius: 0;
+        }
+        .list-group-item:hover {
+            background-color: #e9ecef;
+        }
+        .stat-card {
+            margin-bottom: 1.5rem;
+            height: 200px; /* Fixed height for all stat cards */
+        }
+        .stat-card .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            padding: 1.25rem;
+        }
+        .stat-card h2.card-text {
+            font-size: 2.5rem;
+            margin: 0.5rem 0;
+        }
+        .stat-card .card-title {
+            margin-bottom: 0;
+        }
+        .stat-card .btn {
+            align-self: stretch;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-3">
+                <!-- Sidebar -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Welcome, {{ delivery_boy.name }}!</h5> <!-- Display the delivery partner's name -->
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'delivery_system:delivery_dashboard' %}" class="list-group-item list-group-item-action active">Dashboard</a>
+                        <a href="{% url 'delivery_system:delivery_profile' %}" class="list-group-item list-group-item-action">Profile</a>
+                        <a href="{% url 'delivery_system:view_assigned_work' %}" class="list-group-item list-group-item-action">Orders</a>
+                        <a href="{% url 'delivery_system:delivery_logout' %}" class="list-group-item list-group-item-action">Logout</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <!-- Main Content -->
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Dashboard</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card bg-primary text-white stat-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">History</h5>
+                                        <h2 class="card-text">{{ completed_deliveries|default:"0" }}</h2>
+                                        <p class="card-text"><small>Today: {{ today_deliveries|default:"0" }}</small></p>
+                                        <a href="{% url 'delivery_system:work_history' %}" class="btn btn-light">View History</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-warning text-dark stat-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Pending Assignments</h5>
+                                        <h2 class="card-text">{{ pending_assignments|default:"0" }}</h2>
+                                        <a href="{% url 'delivery_system:view_assigned_work' %}" class="btn btn-light">View Pending Work</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Earnings Summary -->
+                        <div class="mt-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Delivery Earnings</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Completed Deliveries</th>
+                                                    <th>Rate per Delivery</th>
+                                                    <th>Total Earnings</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ completed_deliveries }}</td>
+                                                    <td>₹100.00</td>
+                                                    <td class="text-success fw-bold">₹{{ delivery_earnings|floatformat:2 }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

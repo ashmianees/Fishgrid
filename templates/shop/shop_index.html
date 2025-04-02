@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Admin Dashboard</title>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="{% static 'assets/css/ready.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}">
+
+    <style>
+        #logout-link {
+            margin-left: 30px;
+            margin-right: 5px; 
+        }
+        .logout-icon {
+            color: red;
+            margin-right: 5px;
+        }
+        .blue-box .nav-item a:hover {
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+        .sidebar {
+            width: 260px;
+            position: fixed;
+            height: 100vh;
+            background: #fff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .main-panel {
+            width: calc(100% - 260px);
+            margin-left: 260px;
+            min-height: 100vh;
+            background: #f4f4f4;
+        }
+        .content-wrapper {
+            padding: 20px;
+            margin-top: 60px;
+        }
+        .container-fluid {
+            padding: 0 20px;
+        }
+        .navbar {
+            position: fixed;
+            width: calc(100% - 260px);
+            margin-left: 260px;
+            z-index: 999;
+        }
+        .navbar-nav {
+            margin-left: auto;
+        }
+        .topbar-nav {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 20px;
+        }
+        .topbar-nav li {
+            margin-left: 15px;
+        }
+        .blue-box {
+            position: relative;
+            margin-top: auto;
+        }
+        .nav-item {
+            list-style: none;
+        }
+        .sidebar-wrapper {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-260px);
+                transition: transform 0.3s ease;
+            }
+            .main-panel, .navbar {
+                width: 100%;
+                margin-left: 0;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Prevent caching of the page
+        window.onload = function() {
+            window.history.forward();
+        }
+        window.onunload = function() { null };
+    </script>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="scrollbar-inner sidebar-wrapper">
+                <div class="user">
+                    <div class="info">
+                        <span>
+                            Fish Grid
+                            <span class="user-level">Administrator</span>
+                        </span>
+                    </div>
+                </div>
+                <ul class="nav">
+                    <li class="nav-item active">
+                        <a href="{% url 'shop:shop_index' %}">
+                            <i class="la la-dashboard"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'shop:product_recommendations' %}">
+                            <i class="la la-lightbulb-o"></i>
+                            <p>Product Recommendations</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'shop:shop_profile_view' %}"> 
+                            <i class="la la-building"></i>
+                            <p>Shop Profile</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% if shop_detail %}
+                            <a href="{% url 'shop:order_list' shop_detail.id %}"> 
+                                <i class="la la-shopping-cart"></i>
+                                <p>Orders</p>
+                            </a>
+                        
+                        {% endif %}
+                    </li>
+                    <li class="nav-item">
+                        {% if shop_detail %}
+                            <a href="{% url 'shop:product_list' shop_detail.id %}"> 
+                                <i class="la la-building"></i>
+                                <p>Product</p>
+                            </a>
+                        
+                        {% endif %}
+                    </li>  
+                    <li class="nav-item">
+                        <a href="{% if shop_detail %}{% url 'shop:view_feedback_complaints' shop_id=shop_detail.id %}{% endif %}">
+                            <i class="la la-comments"></i>
+                            <p>Feedback & Complaints</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'shop:request_category' %}">
+                            <i class="la la-plus-circle"></i>
+                            <p>Request New Category</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'shop:view_category_requests' %}">
+                            <i class="la la-list"></i>
+                            <p>My Category Requests</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'delivery_system:manage_delivery_boys' %}">
+                            <i class="la la-bicycle"></i>
+                            <p>Delivery Boys {% if delivery_boys_count %}<span class="badge badge-primary">{{ delivery_boys_count }}</span>{% endif %}</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'shop:manage_deliveries' %}" class="nav-link">
+                            <i class="fas fa-truck"></i>
+                            <span>Manage Deliveries</span>
+                            {% if delivery_boys_count %}
+                            <span class="badge badge-info">{{ delivery_boys_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'shop:manage_delivery_payments' %}" class="nav-link">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Delivery Payments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'shop:aquarium_pricing' %}">
+                            <i class="fas fa-calculator"></i>
+                            <p>Aquarium Pricing</p>
+                        </a>
+                    </li>
+                    <div class="blue-box" style="background-color: #007bff; width: 100%; padding: 6px; margin-top: 20px;">
+                        <li class="nav-item">
+                            <a href="{% url 'main:logout' %}" style="color: white;">
+                                <i class="la la-power-off"></i>
+                                <p>Logout</p>
+                            </a>
+                        </li>
+                    </div>
+                    
+                </ul>
+            </div>
+        </div>
+        {% block content %}
+        <!-- Main Panel -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                
+                <div class="container-fluid">
+                    <!-- Existing shop dashboard content -->
+                    
+                    <!-- Add Delivery Management Section -->
+                    <div class="row mt-4">
+                        <div class="col-xl-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Delivery Management</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="card bg-primary text-white mb-4">
+                                                <div class="card-body">
+                                                    <h5>Active Delivery Boys</h5>
+                                                    <h2>{{ delivery_boys_count }}</h2>
+                                                </div>
+                                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                                    <a class="text-white stretched-link" href="{% url 'delivery_system:manage_delivery_boys' %}">View Details</a>
+                                                    <i class="fas fa-angle-right"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-warning text-white mb-4">
+                                                <div class="card-body">
+                                                    <h5>Pending Applications</h5>
+                                                    <h2>{{ pending_applications_count }}</h2>
+                                                </div>
+                                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                                    <a class="text-white stretched-link" href="{% url 'delivery_system:view_applications' %}">Review Applications</a>
+                                                    <i class="fas fa-angle-right"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+</body>
+<script src="{% static 'assets/js/core/jquery.3.2.1.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js' %}"></script>
+<script src="{% static 'assets/js/core/popper.min.js' %}"></script>
+<script src="{% static 'assets/js/core/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/chartist/chartist.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/chartist/plugin/chartist-plugin-tooltip.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/jquery-mapael/jquery.mapael.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/jquery-mapael/maps/world_countries.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/chart-circle/circles.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js' %}"></script>
+<script src="{% static 'assets/js/ready.min.js' %}"></script>
+<script src="{% static 'assets/js/demo.js' %}"></script>
+</html>

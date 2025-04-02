@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work History</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fontawesome.min.css' %}">
+    <style>
+        body {
+            background-color: #e9ecef;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+        .card-header img {
+            width: 30px;
+            height: auto;
+            margin-right: 10px;
+        }
+        .badge {
+            padding: 8px 12px;
+            font-size: 0.85em;
+        }
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <img src="{% static 'img/fish-log.png' %}" alt="FishGrid Logo">
+                        <h5>Delivery Partner Menu</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'delivery_system:delivery_dashboard' %}" class="list-group-item list-group-item-action">Dashboard</a>
+                        <a href="{% url 'delivery_system:delivery_profile' %}" class="list-group-item list-group-item-action">Profile</a>
+                        <a href="{% url 'delivery_system:view_assigned_work' %}" class="list-group-item list-group-item-action">Current Orders</a>
+                        <a href="{% url 'delivery_system:work_history' %}" class="list-group-item list-group-item-action active">Work History</a>
+                        <a href="{% url 'delivery_system:delivery_logout' %}" class="list-group-item list-group-item-action">Logout</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header">
+                        <img src="{% static 'img/fish-log.png' %}" alt="FishGrid Logo">
+                        <h4>Delivery History</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if completed_deliveries %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Shop Name</th>
+                                        <th>Shop Location</th>
+                                        <th>Delivery Address</th>
+                                        <th>Assigned At</th>
+                                        <th>Delivered At</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for delivery in completed_deliveries %}
+                                    <tr>
+                                        <td>#{{ delivery.order.id }}</td>
+                                        <td>{{ delivery.order.shop.shop_name }}</td>
+                                        <td>{{ delivery.order.shop.shop_location }}</td>
+                                        <td>
+                                            {{ delivery.order.address.address }}<br>
+                                            <small class="text-muted">PIN: {{ delivery.order.address.pincode }}</small>
+                                        </td>
+                                        <td>{{ delivery.assigned_at|date:"M d, Y H:i" }}</td>
+                                        <td>{{ delivery.updated_at|date:"M d, Y H:i" }}</td>
+                                        <td>
+                                            <span class="badge badge-success">Delivered</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <h4>No completed deliveries yet.</h4>
+                            <p class="text-muted">Your completed deliveries will appear here.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

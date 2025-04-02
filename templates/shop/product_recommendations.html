@@ -1,0 +1,49 @@
+{% extends 'shop/shop_index.html' %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Recommended Products for Your Shop</h4>
+            <p>Based on sales data across all shops, these products might improve your sales:</p>
+            <div class="row" id="product-list">
+                {% include 'shop/product_card.html' %}
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    var offset = {{ recommended_products|length }};
+    var loading = false;
+
+    $('#loadMoreBtn').click(function() {
+        if (loading) return;
+        loading = true;
+        
+        $.ajax({
+            url: '{% url "shop:load_more_recommendations" %}',
+            data: { offset: offset },
+            success: function(data) {
+                $('#product-list').append(data.html);
+                offset += data.count;
+                if (data.count === 0) {
+                    $('#loadMoreBtn').hide();
+                }
+                loading = false;
+            },
+            error: function(xhr, status, error) {
+                console.error("Error loading more products:", error);
+                loading = false;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% load static %}
+{% load socialaccount %}
+{% providers_media_js %}
+    {% if message %}
+        <script>
+            alert("{{ message }}")
+        </script>
+    {% endif %}
+    <section class="blog-banner-area" id="category">
+        <div class="container h-100">
+            <div class="blog-banner">
+                <div class="text-center">
+                    <h1>Register</h1>
+                    <nav aria-label="breadcrumb" class="banner-breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Register</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ================ end banner area ================= -->
+
+    <!--================Login Box Area =================-->
+    <section class="login_box_area section-margin">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="login_box_img">
+                        <div class="hover">
+                            <h4>Already have an account?</h4>
+                            <!-- <p>There are advances being made in science and technology everyday, and a good example of this is the</p> -->
+                            <a class="button button-account" href="Login">Login Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="login_form_inner register_form_inner">
+                        <h3>Create an account</h3>
+                        <form method="post" class="row login_form" action="" id="register_form" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="col-md-12 form-group">
+                                <input type="text" class="form-control" id="shopname" name="shopname" placeholder="Shop Name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Shop Name'" autocomplete="off" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode==32)" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="file" class="form-control" id="image" name="image" placeholder="Select Image" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Image'" accept=".png, .jpeg, .jpg" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="text" class="form-control" id="Address" name="address" placeholder="Shop Address" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Address'" placeholder="Address" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Address' "pattern="[A-Za-z0-9@-_ ,()]+" title="Address can only contain letters, numbers, @, -, _, and spaces" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="text" class="form-control" id="phonenumber" name="phonenumber" placeholder="Phone Number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Phone Number'" pattern="[0-9]{3}[0-9]{3}[0-9]{4}" title="Enter 10 digit number" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="text" class="form-control" id="email" name="email" placeholder="Email Address" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Email Address'" pattern="[a-z0-9._%+-]+@(gmail\.com|yahoo\.com)" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="text" class="form-control" id="password" name="password" placeholder="Password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'" pattern=".{8,}" title="Eight or more characters" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="text" class="form-control" id="con_password" name="con_password" placeholder="Confirm Password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'con_password'">
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <button type="submit" value="submit" class="button button-register w-100">Register</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+<script type="text/javascript">
+    function preventBack() {
+        window.history.forward();
+    }
+    setTimeout("preventBack()", 0);
+    window.onunload = function () {
+        null
+    };
+</script>

@@ -1,0 +1,15 @@
+[2024-11-03 11:28:26] Starting the Selenium test...
+[2024-11-03 11:28:27] Browser window maximized.
+[2024-11-03 11:28:27] Navigated to the login page.
+[2024-11-03 11:28:29] Email input field is visible.
+[2024-11-03 11:28:29] Entered email: meenuantony333@gmail.com
+[2024-11-03 11:28:29] Entered password: ********
+[2024-11-03 11:28:30] Clicked the login button.
+[2024-11-03 11:28:30] Page URL changed after login attempt.
+[2024-11-03 11:28:30] Login failed or unexpected redirect.
+[2024-11-03 11:28:31] Clicked on user name to access profile options.
+[2024-11-03 11:28:31] Clicked on profile management option.
+[2024-11-03 11:28:32] Navigated to Profile Update page.
+[2024-11-03 11:28:33] Updated contact information.
+[2024-11-03 11:28:33] Clicked the update button.
+[2024-11-03 11:28:39] Browser closed. Test completed.

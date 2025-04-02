@@ -1,0 +1,68 @@
+{% extends 'shop/shop_index.html' %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Delivery Boy Applications</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for application in applications %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ application.name }}</h5>
+                                            <p class="card-text">
+                                                <strong>Email:</strong> {{ application.email }}<br>
+                                                <strong>Phone:</strong> {{ application.phone }}<br>
+                                                <strong>Vehicle:</strong> {{ application.vehicle_type }} - {{ application.vehicle_details }}<br>
+                                                <strong>Pincode:</strong> {{ application.pincode }}
+                                            </p>
+                                            <div class="mb-3">
+                                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#licenseModal{{ application.id }}">
+                                                    <i class="fas fa-id-card"></i> View License
+                                                </button>
+                                            </div>
+                                            <form action="{% url 'delivery_system:approve_application' application.id %}" method="POST">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success">Approve</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- License Modal -->
+                                <div class="modal fade" id="licenseModal{{ application.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">{{ application.name }}'s License</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body text-center">
+                                                <img src="{{ application.license.url }}" alt="License" class="img-fluid" style="max-height: 70vh;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <p>No pending applications in your area.</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,225 @@
+<div class="dashboard-content">
+    <h2 class="mb-4">Fish Disease Detection</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i> Please upload a clear image of a fish. Images of other animals or objects will not be accepted.
+            </div>
+            
+            <div class="upload-section text-center">
+                <form id="diseaseDetectionForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="imageInput" class="form-label">Upload Fish Image</label>
+                        <input type="file" class="form-control" id="imageInput" name="file" accept="image/*" required>
+                        <small class="text-muted">Supported formats: JPG, PNG, JPEG</small>
+                    </div>
+                    <div class="mb-4">
+                        <img id="imagePreview" src="" alt="Image Preview" style="max-width: 300px; display: none;" class="img-fluid rounded">
+                    </div>
+                    <button type="submit" class="button" id="detectButton">
+                        <i class="fas fa-microscope"></i> Detect Disease
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultSection" class="mt-4" style="display: none;">
+                <h5 class="text-center mb-4">Detection Results</h5>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="alert" id="statusAlert">
+                            <h6 id="statusMessage" class="mb-0"></h6>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Detected Disease:</h6>
+                                <p id="detectedDisease" class="text-primary fw-bold"></p>
+                                <h6>Confidence:</h6>
+                                <p id="confidence" class="text-success"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>All Probabilities:</h6>
+                                <div id="probabilities" class="small"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add this section after your upload form -->
+            {% if metrics %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Model Performance Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Statistical Metrics -->
+                    <h6>Statistical Accuracy Metrics:</h6>
+                    <ul class="list-group mb-3">
+                        {% for key, value in metrics.statistical_metrics.items %}
+                            <li class="list-group-item">{{ key }}: {{ value }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Overall Accuracy -->
+                    <h6>Overall Model Accuracy: {{ metrics.overall_accuracy }}</h6>
+
+                    <!-- Disease Detection Matrix -->
+                    <h6 class="mt-3">Disease Detection Matrix:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Disease Class</th>
+                                    <th>Accuracy</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for disease, values in metrics.disease_metrics.items %}
+                                <tr>
+                                    <td>{{ disease }}</td>
+                                    <td>{{ values.0|floatformat:2 }}</td>
+                                    <td>{{ values.1|floatformat:2 }}</td>
+                                    <td>{{ values.2|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('imageInput').addEventListener('change', function(e) {
+    const preview = document.getElementById('imagePreview');
+    const file = e.target.files[0];
+    
+    // Reset previous results
+    document.getElementById('resultSection').style.display = 'none';
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid File',
+            text: 'Please upload an image file (JPG, PNG, or JPEG).'
+        });
+        e.target.value = '';
+        preview.style.display = 'none';
+        return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+            icon: 'error',
+            title: 'File Too Large',
+            text: 'Please upload an image smaller than 5MB.'
+        });
+        e.target.value = '';
+        preview.style.display = 'none';
+        return;
+    }
+    
+    if (file) {
+        preview.style.display = 'block';
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('diseaseDetectionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const imageFile = document.getElementById('imageInput').files[0];
+    
+    if (!imageFile) {
+        Swal.fire({
+            icon: 'error',
+            title: 'No Image',
+            text: 'Please select an image to upload.'
+        });
+        return;
+    }
+    
+    formData.append('file', imageFile);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    // Show loading state
+    const submitButton = document.getElementById('detectButton');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    submitButton.disabled = true;
+
+    // Reset previous results
+    document.getElementById('resultSection').style.display = 'none';
+
+    fetch("{% url 'user:predict_disease' %}", {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'error') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Image',
+                text: data.error,
+                confirmButtonText: 'Upload New Image'
+            });
+            // Clear the form
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            return;
+        }
+        
+        // Display results only for valid fish images
+        document.getElementById('resultSection').style.display = 'block';
+        document.getElementById('detectedDisease').textContent = data.disease;
+        document.getElementById('confidence').textContent = data.confidence;
+
+        // Update status message with appropriate styling
+        const statusAlert = document.getElementById('statusAlert');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        statusAlert.className = 'alert ' + (data.is_healthy ? 'alert-success' : 'alert-warning');
+        statusMessage.textContent = data.status_message;
+
+        // Display all probabilities
+        const probabilitiesDiv = document.getElementById('probabilities');
+        probabilitiesDiv.innerHTML = '';
+        Object.entries(data.all_probabilities || {}).forEach(([disease, prob]) => {
+            const div = document.createElement('div');
+            div.className = 'mb-1';
+            div.innerHTML = `${disease}: <span class="text-muted">${prob}</span>`;
+            probabilitiesDiv.appendChild(div);
+        });
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error processing image. Please try again.'
+        });
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        // Restore button state
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    });
+});
+</script> 

@@ -1,0 +1,530 @@
+{% extends 'shop/shop_index.html' %}
+{% load static %}
+{% block content %}
+
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Products</h4>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Products</div>
+                            <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#addProductModal">
+                                Add Product
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="productTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Product Name</th>
+                                            <th>Category</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
+                                            <th>Expiry Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in products %}
+                                        <tr>
+                                            <td>{{ product.product_name }}</td>
+                                            <td>{{ product.categories.category_name }}</td>
+                                            <td>{{ product.price }}</td>
+                                            <td>{{ product.status|yesno:"Enabled,Disabled" }}</td>
+                                            <td>
+                                                {% if product.expiry_date %}
+                                                    <span class="{% if product.is_expired %}text-danger{% else %}text-success{% endif %}">
+                                                        {{ product.expiry_date|date:"Y-m-d" }}
+                                                        {% if product.is_expired %}
+                                                            <small>(Expired)</small>
+                                                        {% endif %}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-muted">No expiry date</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info view-btn" data-id="{{ product.id }}" data-name="{{ product.product_name }}" data-description="{{ product.product_description }}" data-size="{{ product.size }}" data-quantity="{{ product.quantity }}" data-price="{{ product.price }}" data-category="{{ product.categories.id }}" data-categoris="{{ categories.category_name }}" data-image="{{ product.image.url }}">View Product</button>
+                                                <button class="btn btn-sm btn-primary edit-btn" 
+                                                    data-id="{{ product.id }}" 
+                                                    data-name="{{ product.product_name }}" 
+                                                    data-description="{{ product.product_description }}" 
+                                                    data-size="{{ product.size }}" 
+                                                    data-quantity="{{ product.quantity }}" 
+                                                    data-price="{{ product.price }}" 
+                                                    data-category="{{ product.categories.id }}"
+                                                    data-expiry-date="{{ product.expiry_date|date:'Y-m-d' }}">
+                                                    Edit
+                                                </button>
+                                                {% if request.user == shop.user %}
+                                                    <form action="{% url 'shop:toggle_product' product.id %}" method="post" style="display: inline;">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm {% if product.status %}btn-warning{% else %}btn-success{% endif %}">
+                                                            {% if product.status %}Disable{% else %}Enable{% endif %}
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6">No products found.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Product Modal -->
+<div class="modal fade" id="viewProductModal" tabindex="-1" role="dialog" aria-labelledby="viewProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewProductModalLabel">Product Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Name:</strong> <span id="view_product_name"></span></p>
+                <p><strong>Category:</strong> <span id="view_product_category"></span></p>
+                <p><strong>Description:</strong> <span id="view_product_description"></span></p>
+                <p><strong>Size:</strong> <span id="view_product_size"></span></p>
+                <p><strong>Stock:</strong> <span id="view_product_quantity"></span></p>
+                <p><strong>Price:</strong> <span id="view_product_price"></span></p>
+                <p><strong>Image:</strong> <img id="view_product_image" src="" alt="" width="100"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'shop:product_add' %}" id="productForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="product_name">Product Name</label>
+                                <input type="text" class="form-control" id="product_name" name="product_name" pattern="[A-Za-z\s]+" title="Only alphabets are allowed" required>
+                                <small class="text-danger" id="product_name_error"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="product_category">Category</label>
+                                <select class="form-control" id="product_category" name="product_category" required>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.category_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="product_description">Product Description</label>
+                                <textarea class="form-control" id="product_description" name="product_description" pattern="[A-Za-z0-9,._\-\s]+" title="Only alphabets, numbers, and special characters (comma, dot, underscore, hyphen) are allowed" required></textarea>
+                                <small class="text-danger" id="product_description_error"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="product_quantity">Quantity</label>
+                                <input type="number" class="form-control" id="product_quantity" name="product_quantity" min="1" required>
+                                <small class="text-danger" id="product_quantity_error"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="product_size">Size</label>
+                                <input type="number" step="0.01" class="form-control" id="product_size" name="product_size" min="0.4" required>
+                                <small class="text-danger" id="product_size_error"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="product_image">Image</label>
+                                <input type="file" class="form-control" id="product_image" name="product_image" accept=".jpeg,.jpg,.png" required>
+                                <small class="text-danger" id="product_image_error"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="product_price">Price</label>
+                                <input type="number" step="0.01" class="form-control" id="product_price" name="product_price" min="1" required>
+                                <small class="text-danger" id="product_price_error"></small>
+                            </div>
+                            <!-- Expiration Date Field -->
+                            <div class="form-group">
+                                <label for="product_expire_date">Expiry Date (Optional)</label>
+                                <input type="date" class="form-control" id="product_expire_date" name="expire_date" min="{{ today|date:'Y-m-d' }}">
+                                <small class="text-muted">Leave empty if product has no expiry date</small>
+                                <small class="text-danger" id="product_expire_date_error"></small>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm" method="post" action="{% url 'shop:product_edit' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit_product_id" name="product_id">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_product_name">Product Name</label>
+                                <input type="text" class="form-control" id="edit_product_name" name="product_name" pattern="[A-Za-z\s]+" title="Only alphabets are allowed" required>
+                                <small class="text-danger" id="edit_product_name_error"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_product_category">Category</label>
+                                <select class="form-control" id="edit_product_category" name="product_category" required>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.category_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_product_description">Product Description</label>
+                                <textarea class="form-control" id="edit_product_description" name="product_description" pattern="[A-Za-z0-9,._\-\s]+" title="Only alphabets, numbers, and special characters (comma, dot, underscore, hyphen) are allowed" required></textarea>
+                                <small class="text-danger" id="edit_product_description_error"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_product_add_quantity">Add Quantity</label>
+                                <input type="number" class="form-control" id="edit_product_add_quantity" name="add_quantity" value="0" min="0">
+                                <small class="text-danger" id="edit_product_add_quantity_error"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_product_quantity">Quantity</label>
+                                <input type="number" class="form-control" id="edit_product_quantity" name="product_quantity" min="1" required>
+                                <small class="text-danger" id="edit_product_quantity_error"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_product_size">Size</label>
+                                <input type="number" step="0.01" class="form-control" id="edit_product_size" name="product_size" min="0.4" required>
+                                <small class="text-danger" id="edit_product_size_error"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_product_image">Image</label>
+                                <input type="file" class="form-control" id="edit_product_image" name="product_image" accept=".jpeg,.jpg,.png">
+                                <small class="text-danger" id="edit_product_image_error"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_product_price">Price</label>
+                                <input type="number" step="0.01" class="form-control" id="edit_product_price" name="product_price" min="1" required>
+                                <small class="text-danger" id="edit_product_price_error"></small>
+                            </div>
+                            <!-- Expiration Date Field -->
+                            <div class="form-group">
+                                <label for="edit_expire_date">Expiry Date (Optional)</label>
+                                <input type="date" class="form-control" id="edit_expire_date" name="expire_date" min="{{ today|date:'Y-m-d' }}">
+                                <small class="text-muted">Leave empty if product has no expiry date</small>
+                                <small class="text-danger" id="edit_expire_date_error"></small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Update Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" role="dialog" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProductModalLabel">Confirm Disable</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to disable this product?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDelete" class="btn btn-danger">Disable</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add these script tags if not already present -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/notify/0.4.2/notify.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    $(document).ready(function() {
+        // Edit button click handler
+        $('.edit-btn').click(function() {
+            const button = $(this);
+            
+            // Get data from button attributes
+            $('#edit_product_id').val(button.data('id'));
+            $('#edit_product_name').val(button.data('name'));
+            $('#edit_product_description').val(button.data('description'));
+            $('#edit_product_size').val(button.data('size'));
+            $('#edit_product_quantity').val(button.data('quantity'));
+            $('#edit_product_price').val(button.data('price'));
+            $('#edit_product_category').val(button.data('category'));
+            $('#edit_product_add_quantity').val(0);
+            
+            // Handle expiry date
+            const expiryDate = button.data('expiry-date');
+            if (expiryDate && expiryDate !== 'None') {
+                $('#edit_expire_date').val(expiryDate);
+            } else {
+                $('#edit_expire_date').val('');
+            }
+    
+            // Show the modal
+            $('#editProductModal').modal('show');
+        });
+    });
+
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.id;
+            $('#confirmDelete').attr('href', `{% url 'shop:product_disable' %}?id=${productId}`);
+            $('#deleteProductModal').modal('show');
+        });
+    });
+
+    const viewButtons = document.querySelectorAll('.view-btn');
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            document.getElementById('view_product_name').innerText = this.dataset.name;
+            document.getElementById('view_product_category').innerText = this.dataset.category;
+            document.getElementById('view_product_description').innerText = this.dataset.description;
+            document.getElementById('view_product_size').innerText = this.dataset.size;
+            document.getElementById('view_product_quantity').innerText = this.dataset.quantity;
+            document.getElementById('view_product_price').innerText = this.dataset.price;
+            document.getElementById('view_product_image').src = this.dataset.image; // Ensure you pass image URL in data attributes
+            $('#viewProductModal').modal('show');
+        });
+    });
+
+    const validateField = (input, pattern, errorMessageId) => {
+        const errorElement = document.getElementById(errorMessageId);
+        if (!pattern.test(input.value)) {
+            errorElement.textContent = 'Invalid format.';
+        } else {
+            errorElement.textContent = '';
+        }
+    };
+
+    // Add Product Form Validation
+    document.getElementById('product_name').addEventListener('input', function() {
+        validateField(this, /^[A-Za-z\s]+$/, 'product_name_error');
+    });
+
+    document.getElementById('product_description').addEventListener('input', function() {
+        validateField(this, /^[A-Za-z0-9,._\-\s]+$/, 'product_description_error');
+    });
+
+    document.getElementById('product_quantity').addEventListener('input', function() {
+        const errorElement = document.getElementById('product_quantity_error');
+        if (this.value < 1) {
+            errorElement.textContent = 'Quantity must be at least 1.';
+        } else {
+            errorElement.textContent = '';
+        }
+    });
+
+    document.getElementById('product_size').addEventListener('input', function() {
+        const errorElement = document.getElementById('product_size_error');
+        if (this.value < 0.4) {
+            errorElement.textContent = 'Size must be at least 0.4.';
+        } else {
+            errorElement.textContent = '';
+        }
+    });
+
+    document.getElementById('product_image').addEventListener('change', function() {
+        const errorElement = document.getElementById('product_image_error');
+        const filePath = this.value;
+        const allowedExtensions = /(\.jpeg|\.jpg|\.png)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            errorElement.textContent = 'Image must be in jpeg, jpg, or png format.';
+        } else {
+            errorElement.textContent = '';
+        }
+    });
+
+    document.getElementById('product_price').addEventListener('input', function() {
+        const errorElement = document.getElementById('product_price_error');
+        if (this.value < 1) {
+            errorElement.textContent = 'Price must be at least 1.';
+        } else {
+            errorElement.textContent = '';
+        }
+    });
+
+    // Edit Product Form Validation
+    document.getElementById('edit_product_name').addEventListener('input', function() {
+        validateField(this, /^[A-Za-z\s]+$/, 'edit_product_name_error');
+    });
+
+    document.getElementById('edit_product_description').addEventListener('input', function() {
+        validateField(this, /^[A-Za-z0-9,._\-\s]+$/, 'edit_product_description_error');
+    });
+
+    document.getElementById('edit_product_quantity').addEventListener('input', function() {
+        const errorElement = document.getElementById('edit_product_quantity_error');
+        if (this.value < 1) {
+            errorElement.textContent = 'Quantity must be at least 1.';
+        } else {
+            errorElement.textContent = '';
+        }
+    });
+
+    document.getElementById('edit_product_size').addEventListener('input', function() {
+        const errorElement = document.getElementById('edit_product_size_error');
+        if (this.value < 0.4) {
+            errorElement.textContent = 'Size must be at least 0.4.';
+        } else {
+            errorElement.textContent = '';
+        }
+    });
+
+    document.getElementById('edit_product_image').addEventListener('change', function() {
+        const errorElement = document.getElementById('edit_product_image_error');
+        const filePath = this.value;
+        const allowedExtensions = /(\.jpeg|\.jpg|\.png)$/i;
+        if (filePath && !allowedExtensions.exec(filePath)) {
+            errorElement.textContent = 'Image must be in jpeg, jpg, or png format.';
+        } else {
+            errorElement.textContent = '';
+        }
+    });
+
+    document.getElementById('edit_product_price').addEventListener('input', function() {
+        const errorElement = document.getElementById('edit_product_price_error');
+        if (this.value < 1) {
+            errorElement.textContent = 'Price must be at least 1.';
+        } else {
+            errorElement.textContent = '';
+        }
+    });
+
+    // Check if product exists in the specific shop
+    document.getElementById('addProductForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent form submission
+
+        const productName = document.getElementById('product_name').value;
+        const shopId = '{{ shop.id }}'; // Ensure you have the shop ID available
+
+        // AJAX call to check if the product already exists in the specific shop
+        $.ajax({
+            url: '{% url "shop:check_product_exists" %}', // URL to check product existence
+            type: 'POST',
+            data: {
+                'product_name': productName,
+                'shop_id': shopId, // Include shop ID
+                'csrfmiddlewaretoken': '{{ csrf_token }}' // Include CSRF token
+            },
+            success: function(response) {
+                if (response.exists) {
+                    alert('Product already exists in this shop.');
+                } else {
+                    // If product does not exist, submit the form
+                    document.getElementById('addProductForm').submit();
+                }
+            },
+            error: function() {
+                alert('Error checking product existence.');
+            }
+        });
+    });
+
+    document.getElementById('product_category').addEventListener('change', function() {
+        const selectedCategory = this.options[this.selectedIndex].text; // Get the selected category text
+        const expireDateInput = document.getElementById('expire_date');
+        
+        if (selectedCategory === 'Food') { // Check if the selected category is "Food"
+            expireDateInput.disabled = false; // Enable the expiration date field
+        } else {
+            expireDateInput.disabled = true; // Disable the expiration date field
+            expireDateInput.value = ''; // Clear the value if disabled
+        }
+    });
+
+    // Update the form validation to only check date validity if a date is entered
+    $('#productForm, #editProductForm').on('submit', function(e) {
+        const form = $(this);
+        const expiryDateInput = form.find('input[name="expire_date"]');
+        
+        if (expiryDateInput.val()) {
+            const selectedDate = new Date(expiryDateInput.val());
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate <= today) {
+                e.preventDefault();
+                alert('Expiry date must be in the future.');
+                return false;
+            }
+        }
+    });
+});
+</script>
+
+<!-- Add this to your existing style section or create one -->
+<style>
+    .text-danger {
+        color: #dc3545 !important;
+    }
+    
+    .text-success {
+        color: #28a745 !important;
+    }
+    
+    .text-muted {
+        color: #6c757d !important;
+    }
+    
+    td small {
+        font-size: 0.85em;
+        font-style: italic;
+    }
+</style>
+
+{% endblock %}
+
+
+

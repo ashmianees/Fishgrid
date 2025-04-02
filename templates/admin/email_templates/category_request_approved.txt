@@ -1,0 +1,13 @@
+Dear {{ shop_owner_name }},
+
+We are pleased to inform you that your category request has been approved.
+
+Category Name: {{ category_name }}
+Category Description: {{ category_desc }}
+
+The new category has been added to our system and is now available for use.
+
+Thank you for your contribution to improving our platform.
+
+Best regards,
+Admin Team

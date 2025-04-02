@@ -1,0 +1,109 @@
+{% extends 'shop/shop_index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4>Manage Delivery Boys</h4>
+                            <div class="badge badge-primary p-2">
+                                <h6 class="mb-0">Active Delivery Boys: {{ active_count }}</h6>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for delivery_boy in delivery_boys %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ delivery_boy.name }}</h5>
+                                            <p class="card-text">
+                                                <strong>Email:</strong> {{ delivery_boy.email }}<br>
+                                                <strong>Phone:</strong> {{ delivery_boy.phone }}<br>
+                                                <strong>Vehicle:</strong> {{ delivery_boy.vehicle_type }} - {{ delivery_boy.vehicle_details }}<br>
+                                                <strong>Status:</strong> 
+                                                {% if delivery_boy.is_active %}
+                                                    <span class="badge badge-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge badge-danger">Inactive</span>
+                                                {% endif %}
+                                            </p>
+                                            <div class="mb-3">
+                                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#licenseModal{{ delivery_boy.id }}">
+                                                    <i class="fas fa-id-card"></i> View License
+                                                </button>
+                                            </div>
+                                            <button class="btn btn-danger remove-delivery-boy" data-id="{{ delivery_boy.id }}">
+                                                Remove from Shop
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- License Modal -->
+                                <div class="modal fade" id="licenseModal{{ delivery_boy.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">{{ delivery_boy.name }}'s License</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body text-center">
+                                                <img src="{{ delivery_boy.license.url }}" alt="License" class="img-fluid" style="max-height: 70vh;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <p>No delivery boys assigned to your shop.</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this before the closing body tag -->
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('.remove-delivery-boy').click(function() {
+        if (confirm('Are you sure you want to remove this delivery boy from your shop?')) {
+            const deliveryBoyId = $(this).data('id');
+            const button = $(this);
+            
+            $.ajax({
+                url: "{% url 'delivery_system:remove_delivery_boy' %}",
+                type: 'POST',
+                data: {
+                    'delivery_boy_id': deliveryBoyId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Refresh the page or update the UI
+                        location.reload();
+                    } else {
+                        alert('Error removing delivery boy. Please try again.');
+                    }
+                },
+                error: function() {
+                    alert('Error removing delivery boy. Please try again.');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,23 @@
+{% extends 'shop/shop_index.html' %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Request New Category</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="category_name">Category Name</label>
+                    <input type="text" class="form-control" id="category_name" name="category_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="category_desc">Category Description</label>
+                    <textarea class="form-control" id="category_desc" name="category_desc" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Request</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

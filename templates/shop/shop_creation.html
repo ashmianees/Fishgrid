@@ -1,0 +1,112 @@
+{% extends 'shop/index.html' %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Add Shop</h4>
+            <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="shop_name">Shop Name</label>
+                            <input type="text" class="form-control" id="shop_name" name="shop_name" required oninput="validateShopName()">
+                            <small id="shop_name_error" class="text-danger"></small> <!-- Error message -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="shop_location">Shop Location</label>
+                            <input type="text" class="form-control" id="shop_location" name="shop_location" required oninput="validateShopLocation()">
+                            <small id="shop_location_error" class="text-danger"></small> <!-- Error message -->
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="pincode">Pincode</label>
+                            <input type="text" class="form-control" id="pincode" name="pincode" required oninput="validatePincode()">
+                            <small id="pincode_error" class="text-danger"></small> <!-- Error message -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mobile_number">Mobile Number</label>
+                            <input type="text" class="form-control" id="mobile_number" name="mobile_number" required oninput="validateMobileNumber()">
+                            <small id="mobile_number_error" class="text-danger"></small> <!-- Error message -->
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="shop_image">Image of Shop</label>
+                            <input type="file" class="form-control" id="shop_image" name="shop_image" accept="image/*" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function validateShopName() {
+    const shopName = document.getElementById('shop_name').value;
+    const regex = /^[A-Za-z\s]+$/; // Only alphabets
+    const errorElement = document.getElementById('shop_name_error');
+    if (!regex.test(shopName)) {
+        errorElement.textContent = 'Shop name must contain only alphabets.';
+    } else {
+        errorElement.textContent = '';
+    }
+}
+
+function validateShopLocation() {
+    const shopLocation = document.getElementById('shop_location').value;
+    const regex = /^[A-Za-z0-9\s.,@-]+$/; // Alphabets, numbers, and special characters
+    const errorElement = document.getElementById('shop_location_error');
+    if (!regex.test(shopLocation)) {
+        errorElement.textContent = 'Location can contain alphabets, numbers, and special characters like ., @, -';
+    } else {
+        errorElement.textContent = '';
+    }
+}
+
+function validatePincode() {
+    const pincode = document.getElementById('pincode').value;
+    const regex = /^\d{6}$/; // Only 6 digits
+    const errorElement = document.getElementById('pincode_error');
+    if (!regex.test(pincode)) {
+        errorElement.textContent = 'Pincode must be exactly 6 digits.';
+    } else {
+        errorElement.textContent = '';
+    }
+}
+
+function validateMobileNumber() {
+    const mobileNumber = document.getElementById('mobile_number').value;
+    const regex = /^(?![0-3])[0-9]{10}$/; // 10 digits, cannot start with 0-3
+    const errorElement = document.getElementById('mobile_number_error');
+    if (!regex.test(mobileNumber)) {
+        errorElement.textContent = 'Mobile number must be 10 digits and cannot start with 0, 1, 2, or 3.';
+    } else {
+        errorElement.textContent = '';
+    }
+}
+
+function validateForm() {
+    validateShopName();
+    validateShopLocation();
+    validatePincode();
+    validateMobileNumber();
+    return !document.getElementById('shop_name_error').textContent && 
+           !document.getElementById('shop_location_error').textContent &&
+           !document.getElementById('pincode_error').textContent &&
+           !document.getElementById('mobile_number_error').textContent;
+}
+</script>
+{% endblock %}

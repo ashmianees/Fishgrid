@@ -1,0 +1,454 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>CattleCare</title>
+
+    <!-- CSS FILES -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'css/templatemo-topic-listing.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script type="text/javascript" >
+        function preventBack(){window.history.forward();}
+        setTimeout("preventBack()", 0);
+        window.onunload=function(){null};
+    </script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .hero-section img {
+            width: 100%;
+            height: auto;
+            margin-top: 30px;
+            object-fit: cover;
+        }
+
+        nav {
+            z-index: 1;
+        }
+
+        .navbar-brand {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand img {
+            width: 36px;
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .navbar-brand span {
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-nav .nav-link {
+            font-family: 'Poppins', sans-serif;
+            font-size: 17px;
+            color: black;
+            padding: 8px 15px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #5cadd3;
+            text-decoration: none;
+        }
+
+        .custom-link {
+            font-family: 'Poppins', sans-serif;
+            font-size: 17px;
+            color: black;
+            text-transform: uppercase;
+            padding: 8px 15px;
+            margin-left: 15px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: none;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background-color: #5cadd3;
+            color: #fff;
+            border-radius: 50%;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .scroll-to-top:hover {
+            opacity: 1;
+        }
+
+        .scroll-to-top.show {
+            display: block;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background-color: #5cadd3;
+        }
+
+        .services-section {
+            background-color: #f8f9fa;
+            padding: 4rem 0;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .category-image {
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .category-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover .category-image img {
+            transform: scale(1.1);
+        }
+
+        .category-info {
+            padding: 25px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+            position: relative;
+            z-index: 1;
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .view-more-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #5cadd3;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(92,173,211,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-more-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: all 0.5s;
+        }
+
+        .view-more-btn:hover:before {
+            left: 100%;
+        }
+
+        .view-more-btn:hover {
+            background-color: #4a8baa;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74,139,170,0.4);
+        }
+
+        .category-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .category-card:hover .category-overlay {
+            opacity: 1;
+        }
+
+        .category-icon {
+            font-size: 4rem;
+            color: white;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover .category-icon {
+            transform: translateY(0);
+        }
+
+        /* Updated footer styles */
+        .site-footer {
+            background-color: #ffffff;
+            padding: 15px 0;
+            color: #333;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .footer-section {
+            flex: 1;
+        }
+
+        .footer-section h5 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #5cadd3;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .footer-section h5::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #5cadd3;
+        }
+
+        .footer-section p {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 0;
+        }
+
+        .footer-section:first-child {
+            text-align: left;
+            padding-right: 20px;
+        }
+
+        .footer-section:last-child {
+            text-align: left;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+
+<body id="top">
+
+    <nav class="navbar navbar-expand-lg" style="background-color: whitesmoke;">
+        <div class="container">
+            <a class="navbar-brand" href="">
+                <img src="{% static 'fish-log.png' %}" alt="Cow Icon" style="width: 150px;">
+
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a id="home-link" class="nav-link click-scroll" href="#section_1">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="contact-link" class="nav-link click-scroll" href="#section_5">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="sell-link" class="nav-link click-scroll" href="{% url 'user:login_page' %}" style="background-color: #5cadd3; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; animation: blink 1s infinite;">
+                            Sell
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'user:login_page' %}" class="custom-link">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'user:register_page' %}" class="custom-link">Sign up</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="d-flex justify-content-center align-items-center" id="section_1">
+        <img src="{% static 'img/cattle.png' %}" alt="Cattle Image" width="100%" height="500px">
+    </section>
+
+    <section class="services-section" id="section_5">
+        <div class="container">
+            <h2 class="section-title">Our Services</h2>
+            <div class="row">
+                {% for category in categories %}
+                    <div class="col-md-4">
+                        <div class="category-card">
+                            <div class="category-image">
+                                {% if category.category_image %}
+                                    <img src="{{ category.category_image.url }}" alt="{{ category.category_name }}">
+                                {% else %}
+                                    <img src="{% static 'img/default_category.png' %}" alt="{{ category.category_name }}">
+                                {% endif %}
+                                <div class="category-overlay">
+                                    <i class="fas fa-cow category-icon"></i>
+                                </div>
+                            </div>
+                            <div class="category-info">
+                                <h3 class="category-title">{{ category.category_name }}</h3>
+                                <a href="{% url 'category_detail' category.id %}" class="view-more-btn">View More</a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <p class="text-center">No categories available at the moment. Please check back later.</p>
+                    </div>
+                {% endfor %}
+                <div class="col-md-4">
+                    <div class="category-card">
+                        <div class="category-image">
+                            <img src="{% static 'img/vaccinebg.png' %}" alt="Book Vaccine">
+                            <div class="category-overlay">
+                                
+                            </div>
+                        </div>
+                        <div class="category-info">
+                            <h3 class="category-title">Book Vaccine</h3>
+                            <a href="#" class="view-more-btn">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+<br><br>
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h5>About Fish Grid</h5>
+                    <p>Welcome to our innovative aquarium solutions. We are dedicated to enhancing aquatic life and promoting sustainable practices. Our team of experts is committed to creating a thriving underwater ecosystem.</p>
+                </div>
+                <div class="footer-section">
+                    <h5>Contact</h5>
+                    <p>Email: cattlecare7@gmail.com<br>Phone: +91 9876543210</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <a href="#" id="scroll-to-top" class="scroll-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <!-- JAVASCRIPT FILES -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/custom.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            const scrollToTopBtn = $('#scroll-to-top');
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 100) {
+                    scrollToTopBtn.addClass('show');
+                } else {
+                    scrollToTopBtn.removeClass('show');
+                }
+            });
+            scrollToTopBtn.click(function(e) {
+                e.preventDefault();
+                $('html, body').animate({scrollTop: 0}, '300');
+            });
+        });
+    </script>
+</body>
+</html>

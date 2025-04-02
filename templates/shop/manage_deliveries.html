@@ -1,0 +1,193 @@
+{% extends 'shop/shop_index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container-fluid mt-4 ml-sm-auto px-4">
+        <h2 class="mb-4">Manage Deliveries</h2>
+        
+        <div class="row">
+            <!-- Unassigned Orders -->
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0">Unassigned Orders</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in unassigned_orders %}
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        <td>{{ order.user.username }}</td>
+                                        <td>{{ order.order_date }}</td>
+                                        <td>₹{{ order.total_price }}</td>
+                                        <td>
+                                            <span class="badge {% if order.status == 'confirmed' %}badge-success
+                                                {% elif order.status == 'out_for_delivery' %}badge-info
+                                                {% else %}badge-secondary{% endif %}">
+                                                {{ order.status|title }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex">
+                                                <select class="form-control form-control-sm delivery-boy-select mr-2" id="select-{{ order.id }}">
+                                                    <option value="">Select Delivery Boy</option>
+                                                    {% for boy in delivery_boys %}
+                                                    <option value="{{ boy.id }}">{{ boy.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <button class="btn btn-primary btn-sm assign-delivery-boy" data-order-id="{{ order.id }}">
+                                                    Assign
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No undelivered orders</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pending Deliveries -->
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Pending Deliveries</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Delivery Boy</th>
+                                        <th>Status</th>
+                                        <th>Assigned At</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for assignment in pending_deliveries %}
+                                    <tr>
+                                        <td>#{{ assignment.order.id }}</td>
+                                        <td>{{ assignment.delivery_boy.name }}</td>
+                                        <td>
+                                            <span class="badge {% if assignment.status == 'pending' %}badge-warning
+                                                {% elif assignment.status == 'accepted' %}badge-info
+                                                {% elif assignment.status == 'picked_up' %}badge-primary
+                                                {% else %}badge-secondary{% endif %}">
+                                                {{ assignment.status|title }}
+                                            </span>
+                                        </td>
+                                        <td>{{ assignment.assigned_at|date:"M d, Y H:i" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No pending deliveries</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    transition: margin-left 0.3s;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+.card {
+    margin-bottom: 20px;
+}
+
+.badge {
+    padding: 8px 12px;
+    font-size: 0.85em;
+}
+
+.delivery-boy-select {
+    min-width: 150px;
+    margin-right: 10px;
+}
+
+.btn-sm {
+    height: 31px;
+    line-height: 1;
+}
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    console.log('Document ready');
+    
+    $('.assign-delivery-boy').click(function() {
+        console.log('Button clicked');
+        const orderId = $(this).data('order-id');
+        const deliveryBoyId = $(`#select-${orderId}`).val();
+        
+        console.log('Order ID:', orderId);
+        console.log('Delivery Boy ID:', deliveryBoyId);
+        
+        if (!deliveryBoyId) {
+            alert('Please select a delivery boy first');
+            return;
+        }
+        
+        $.ajax({
+            url: '{% url "shop:assign_delivery_boy" %}',
+            type: 'POST',
+            data: {
+                'order_id': orderId,
+                'delivery_boy_id': deliveryBoyId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('Success response:', response);
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                console.error('Response:', xhr.responseText);
+                alert('Error assigning delivery boy. Please try again.');
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

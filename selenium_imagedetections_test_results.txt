@@ -1,0 +1,11 @@
+[2024-10-25 15:10:27] Starting the Selenium test for Image Detections...
+[2024-10-25 15:10:28] Navigated to the homepage.
+[2024-10-25 15:10:30] Clicked on Login link.
+[2024-10-25 15:10:32] Entered email: ashmianees12@gmail.com
+[2024-10-25 15:10:34] Entered password: ********
+[2024-10-25 15:10:36] Clicked login button.
+[2024-10-25 15:10:40] Navigated to Disease Detection page.
+[2024-10-25 15:10:43] Uploaded image for detection.
+[2024-10-25 15:10:45] Clicked detect button.
+[2024-10-25 15:10:50] Logged out.
+[2024-10-25 15:10:53] Browser closed. Test completed.

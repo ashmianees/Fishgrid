@@ -1,0 +1,38 @@
+[2024-10-24 22:23:26] Starting the Selenium test for Edit Product...
+[2024-10-24 22:23:26] Browser window maximized.
+[2024-10-24 22:23:30] Navigated to shop login page.
+[2024-10-24 22:23:30] Email input field is visible.
+[2024-10-24 22:23:30] Entered email: ashmianees12@gmail.com
+[2024-10-24 22:23:30] Entered password: ********
+[2024-10-24 22:23:41] Clicked the login button.
+[2024-10-24 22:23:41] Login successful, URL changed.
+[2024-10-24 22:23:46] Navigated to Product page.
+[2024-10-24 22:23:46] Clicked edit button for the first product.
+[2024-10-24 22:23:46] An error occurred: Message: element not interactable
+  (Session info: chrome=130.0.6723.59)
+Stacktrace:
+	GetHandleVerifier [0x00B33853+24035]
+	(No symbol) [0x00ABBBE4]
+	(No symbol) [0x0099C14D]
+	(No symbol) [0x009DEC2F]
+	(No symbol) [0x009D414D]
+	(No symbol) [0x009FFE8C]
+	(No symbol) [0x009D3C04]
+	(No symbol) [0x00A00124]
+	(No symbol) [0x00A1953F]
+	(No symbol) [0x009FFC26]
+	(No symbol) [0x009D218C]
+	(No symbol) [0x009D310D]
+	GetHandleVerifier [0x00DD9683+2800659]
+	GetHandleVerifier [0x00E3423E+3172302]
+	GetHandleVerifier [0x00E2CE52+3142626]
+	GetHandleVerifier [0x00BD6C00+692624]
+	(No symbol) [0x00AC4BFD]
+	(No symbol) [0x00AC1908]
+	(No symbol) [0x00AC1AA0]
+	(No symbol) [0x00AB3F50]
+	BaseThreadInitThunk [0x759D7BA9+25]
+	RtlInitializeExceptionChain [0x7722C0CB+107]
+	RtlClearBits [0x7722C04F+191]
+
+[2024-10-24 22:23:52] Browser closed. Test completed.

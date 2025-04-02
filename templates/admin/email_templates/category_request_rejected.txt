@@ -1,0 +1,13 @@
+Dear {{ shop_owner_name }},
+
+We regret to inform you that your category request has been rejected.
+
+Category Name: {{ category_name }}
+Category Description: {{ category_desc }}
+
+Reason for rejection: {{ reason }}
+
+If you have any questions or would like to submit a revised request, please don't hesitate to contact us.
+
+Best regards,
+Admin Team

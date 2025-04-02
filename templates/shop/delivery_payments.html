@@ -1,0 +1,226 @@
+{% extends 'shop/shop_index.html' %}
+{% block extra_head %}
+<!-- Add defer attribute to ensure proper loading order -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+{% endblock %}
+{% block content %}
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <!-- Date Filter -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Delivery Boy Payments</h4>
+                    <div>
+                        <form method="GET" class="form-inline">
+                            <div class="form-group mx-2">
+                                <label class="mr-2">Start Date:</label>
+                                <input type="date" name="start_date" value="{{ start_date|date:'Y-m-d' }}" class="form-control">
+                            </div>
+                            <div class="form-group mx-2">
+                                <label class="mr-2">End Date:</label>
+                                <input type="date" name="end_date" value="{{ end_date|date:'Y-m-d' }}" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {% for data in earnings_data %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>{{ data.delivery_boy.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h6>Completed Deliveries</h6>
+                                    <h3>{{ data.total_deliveries }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h6>Total Earnings</h6>
+                                    <h3>₹{{ data.total_amount }}</h3>
+                                    <small>(₹50 per delivery)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Section -->
+                    <div class="mt-4">
+                        <h6>Payment Details</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Total Completed Deliveries</th>
+                                    <td>{{ data.total_deliveries }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Rate per Delivery</th>
+                                    <td>₹50</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Amount</th>
+                                    <td>₹{{ data.total_amount }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        {% if not data.payment_exists and data.total_deliveries > 0 %}
+                            <button class="btn btn-primary process-payment" 
+                                    data-delivery-boy="{{ data.delivery_boy.id }}"
+                                    data-name="{{ data.delivery_boy.name }}"
+                                    data-amount="{{ data.total_amount }}"
+                                    data-deliveries="{{ data.total_deliveries }}">
+                                Process Salary Payment (₹{{ data.total_amount }})
+                            </button>
+                        {% elif data.payment_exists %}
+                            <div class="alert alert-success">
+                                Payment already processed for this period
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                No completed deliveries in the selected period
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">No delivery boys found for the selected period.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Move script to end of body and wait for Razorpay to load -->
+<script>
+// Wait for Razorpay to be loaded
+window.addEventListener('load', function() {
+    if (typeof Razorpay === 'undefined') {
+        // If Razorpay is not loaded, try loading it again
+        var script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        document.body.appendChild(script);
+    }
+
+    // Initialize payment button click handlers
+    $('.process-payment').on('click', function(e) {
+        e.preventDefault();
+        const button = $(this);
+        const amount = button.data('amount');
+        const deliveryBoyId = button.data('delivery-boy');
+        const startDate = '{{ start_date|date:"Y-m-d" }}';
+        const endDate = '{{ end_date|date:"Y-m-d" }}';
+
+        // Create Razorpay options
+        var options = {
+            "key": "{{ settings.RAZORPAY_KEY_ID }}",
+            "amount": amount * 100, // Convert to paise
+            "currency": "INR",
+            "name": "FishGrid",
+            "description": "Delivery Boy Payment",
+            "handler": function (response) {
+                console.log("Payment successful, verifying...");
+                console.log("Razorpay response:", response);  // Debug log
+
+                // Show loading state
+                button.prop('disabled', true);
+                button.html('<span class="spinner-border spinner-border-sm"></span> Verifying...');
+
+                // Create the verification data
+                const verificationData = {
+                    delivery_boy_id: deliveryBoyId,
+                    start_date: startDate,
+                    end_date: endDate,
+                    amount: amount * 100,  // amount in paise
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                };
+
+                console.log("Sending verification data:", verificationData);  // Debug log
+
+                $.ajax({
+                    url: '{% url "shop:verify_delivery_payment" %}',
+                    method: 'POST',
+                    data: verificationData,
+                    success: function(response) {
+                        console.log("Verification response:", response);
+                        if (response.status === 'success') {
+                            alert('Payment successful!');
+                            location.reload();
+                        } else {
+                            alert(response.message || 'Payment verification failed');
+                            button.prop('disabled', false);
+                            button.html('Retry Payment');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Verification error:", {
+                            status: status,
+                            error: error,
+                            response: xhr.responseText
+                        });
+                        alert('Payment verification failed. Please try again.');
+                        button.prop('disabled', false);
+                        button.html('Retry Payment');
+                    }
+                });
+            },
+            "prefill": {
+                "name": "{{ request.user.username }}",
+                "email": "{{ request.user.email }}"
+            },
+            "theme": {
+                "color": "#00838f"
+            },
+            "modal": {
+                "ondismiss": function() {
+                    button.prop('disabled', false);
+                    button.html('Process Payment');
+                }
+            }
+        };
+
+        try {
+            var rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response){
+                console.error("Payment failed:", response.error);
+                alert('Payment failed! ' + response.error.description);
+                button.prop('disabled', false);
+                button.html('Retry Payment');
+            });
+            rzp.open();
+        } catch (error) {
+            console.error('Razorpay initialization error:', error);
+            alert('Error initializing payment. Please try again.');
+            button.prop('disabled', false);
+            button.html('Retry Payment');
+        }
+    });
+});
+
+// Add a test function for debugging
+function testRazorpayLoaded() {
+    console.log('Razorpay loaded:', typeof Razorpay !== 'undefined');
+    if (typeof Razorpay !== 'undefined') {
+        console.log('Razorpay is ready to use');
+    } else {
+        console.log('Razorpay is not loaded');
+    }
+}
+
+// Check Razorpay loading status after 2 seconds
+setTimeout(testRazorpayLoaded, 2000);
+</script>
+{% endblock %} 

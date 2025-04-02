@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquarium Builder - FishGrid</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/aquarium-builder.css' %}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e0f7fa;
+            color: #006064;
+            padding-top: 60px;
+        }
+
+        .navbar {
+            background-color: rgba(0, 151, 167, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 151, 167, 0.1);
+            padding: 0.5rem 1rem;
+        }
+
+        .navbar-brand {
+            color: #006064 !important;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            margin-right: 2rem;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-nav .nav-link {
+            color: #006064 !important;
+            margin-left: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(0, 151, 167, 0.1);
+        }
+
+        .navbar-nav .nav-link i {
+            margin-right: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-left: 1rem;
+        }
+
+        .user-name {
+            margin-right: 1rem;
+            font-weight: 500;
+            color: #006064;
+        }
+
+        .profile-icon {
+            font-size: 24px;
+            color: #006064;
+            cursor: pointer;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 151, 167, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background-color: rgba(0, 151, 167, 0.1);
+            border-bottom: 1px solid rgba(0, 151, 167, 0.1);
+            color: #00838f;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: #00838f;
+            border-color: #00838f;
+        }
+
+        .btn-primary:hover {
+            background-color: #006064;
+            border-color: #006064;
+        }
+
+        .btn-outline-danger {
+            color: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+        .btn-info {
+            background-color: #0097a7;
+            border-color: #0097a7;
+        }
+
+        .btn-info:hover {
+            background-color: #00838f;
+            border-color: #00838f;
+        }
+
+        .form-control {
+            border-color: #b2ebf2;
+        }
+
+        .form-control:focus {
+            border-color: #00838f;
+            box-shadow: 0 0 0 0.2rem rgba(0, 131, 143, 0.25);
+        }
+
+        .nav-tabs .nav-link {
+            color: #00838f;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #006064;
+            border-color: #b2ebf2 #b2ebf2 #fff;
+        }
+
+        .item-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .aquarium-container {
+            width: 100%;
+            min-height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        #aquarium-canvas {
+            position: relative;
+            background: linear-gradient(180deg, 
+                rgba(173, 216, 235, 0.8) 0%,
+                rgba(135, 206, 235, 0.9) 60%,
+                rgba(0, 119, 190, 1) 100%);
+            border: 15px solid #2c2c2c;
+            overflow: hidden;
+        }
+
+        /* Rectangle shape */
+        #aquarium-canvas.rectangle {
+            width: 500px;
+            height: 300px;
+        }
+
+        /* Bow Front shape */
+        #aquarium-canvas.bowfront {
+            width: 500px;
+            height: 300px;
+            border-radius: 100px 100px 0 0;
+            background: linear-gradient(90deg,
+                rgba(0, 119, 190, 0.9) 0%,
+                rgba(135, 206, 235, 0.8) 50%,
+                rgba(0, 119, 190, 0.9) 100%);
+        }
+
+        /* Cylinder shape */
+        #aquarium-canvas.cylinder {
+            width: 400px;
+            height: 500px;
+            border-radius: 200px 200px 100px 100px;
+            background: linear-gradient(90deg,
+                rgba(0, 119, 190, 0.9) 0%,
+                rgba(135, 206, 235, 0.8) 50%,
+                rgba(0, 119, 190, 0.9) 100%);
+        }
+
+        /* Tall Pillar shape */
+        #aquarium-canvas.pillar {
+            width: 300px;
+            height: 600px;
+            border-radius: 40px;
+        }
+
+        /* Hexagonal shape */
+        #aquarium-canvas.hexagonal {
+            width: 500px;
+            height: 400px;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+
+        /* Octagonal shape */
+        #aquarium-canvas.octagonal {
+            width: 500px;
+            height: 400px;
+            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        }
+
+        /* Bottom sand/gravel effect */
+        .aquarium-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #f5e6d3;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Glass reflection effect */
+        #aquarium-canvas::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                120deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 45%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.1) 55%,
+                transparent 100%
+            );
+            pointer-events: none;
+        }
+
+        .aquarium-item {
+            position: absolute;
+            cursor: move;
+            z-index: 10;
+        }
+
+        .aquarium-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .aquarium-item.fish img {
+            animation: swim 15s infinite linear;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+        }
+
+        .aquarium-item.plant img {
+            animation: sway 5s infinite ease-in-out;
+            transform-origin: bottom center;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+        }
+
+        @keyframes swim {
+            0% { transform: scaleX(1) translateX(0) rotate(0deg); }
+            25% { transform: scaleX(1) translateX(20px) rotate(2deg); }
+            50% { transform: scaleX(-1) translateX(0) rotate(0deg); }
+            75% { transform: scaleX(-1) translateX(-20px) rotate(-2deg); }
+            100% { transform: scaleX(1) translateX(0) rotate(0deg); }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-5deg) translateX(-2px); }
+            50% { transform: rotate(5deg) translateX(2px); }
+        }
+
+        .spinner-border {
+            color: #00838f;
+        }
+
+        h1, h5 {
+            color: #00838f;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .aquarium-item {
+            position: absolute;
+            cursor: move;
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+        
+        .aquarium-item img {
+            max-width: 100%;
+            height: auto;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        .aquarium-item .item-name {
+            font-size: 10px;
+            margin-top: 2px;
+        }
+        
+        .aquarium-item .item-controls {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            display: none;
+        }
+        
+        .aquarium-item:hover .item-controls {
+            display: block;
+        }
+        
+        .draggable-item {
+            width: 60px;
+            height: 60px;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .item-card {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-bottom: 10px;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 151, 167, 0.2);
+        }
+
+        #aquarium-shape-container {
+            transition: all 0.3s ease;
+            border: 2px solid #00838f;
+            box-shadow: 0 0 20px rgba(0, 131, 143, 0.2);
+            position: relative;
+            margin: 20px auto;
+            background: linear-gradient(180deg, #a8e6ff 0%, #0088cc 100%);
+            overflow: hidden;
+        }
+        
+        /* Classic Rectangular */
+        #aquarium-shape-container.rectangle {
+            width: 90%;
+            height: 70%;
+            transform: perspective(1000px) rotateX(5deg);
+        }
+        
+        /* Bow-Front */
+        #aquarium-shape-container.bowfront {
+            width: 90%;
+            height: 70%;
+            border-radius: 50px 50px 0 0;
+            transform: perspective(1000px) rotateX(5deg);
+        }
+        
+        #aquarium-shape-container.bowfront::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50px 50px 0 0;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0.1) 0%, 
+                rgba(255,255,255,0.2) 50%, 
+                rgba(255,255,255,0.1) 100%);
+        }
+        
+        /* Cylinder */
+        #aquarium-shape-container.cylinder {
+            width: 70%;
+            height: 80%;
+            border-radius: 100px 100px 0 0;
+            transform: perspective(1000px) rotateX(5deg);
+        }
+        
+        /* Tall Pillar */
+        #aquarium-shape-container.pillar {
+            width: 50%;
+            height: 95%;
+            border-radius: 30px 30px 0 0;
+        }
+        
+        /* Hexagonal */
+        #aquarium-shape-container.hexagonal {
+            width: 70%;
+            height: 80%;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%);
+        }
+        
+        /* Octagonal */
+        #aquarium-shape-container.octagonal {
+            width: 70%;
+            height: 80%;
+            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        }
+        
+        /* Water effect for all shapes */
+        #aquarium-shape-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg,
+                rgba(255,255,255,0.2) 0%,
+                rgba(255,255,255,0.1) 50%,
+                rgba(0,0,0,0.1) 100%);
+            pointer-events: none;
+        }
+        
+        #water-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(0deg, 
+                rgba(0,131,143,0.2) 0%, 
+                rgba(178,235,242,0.1) 50%,
+                rgba(224,247,250,0.05) 100%);
+            pointer-events: none;
+            animation: waterMove 10s infinite linear;
+        }
+        
+        @keyframes waterMove {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 0 100%;
+            }
+        }
+        
+        #grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+        
+        #dimensions-display {
+            font-family: monospace;
+            z-index: 1000;
+        }
+        
+        .aquarium-item {
+            position: absolute;
+            cursor: move;
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+        
+        .aquarium-item img {
+            max-width: 100%;
+            height: auto;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        .aquarium-item.fish {
+            transform-origin: center;
+        }
+        
+        .aquarium-item.plant {
+            transform-origin: bottom center;
+        }
+        
+        .size-handle {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border: 1px solid #00838f;
+            position: absolute;
+            border-radius: 50%;
+            cursor: se-resize;
+        }
+
+        .item-image img {
+            border: 1px solid #e0f7fa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge-success {
+            background-color: #00838f;
+        }
+
+        .aquarium-canvas {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(180deg, #a8e6ff 0%, #0088cc 100%);
+            border-radius: 50%;
+            position: relative;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: 15px solid #f5f5f5;
+        }
+
+        .water-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, 
+                rgba(255,255,255,0.2) 0%,
+                rgba(255,255,255,0.1) 50%,
+                rgba(0,0,0,0.1) 100%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .aquarium-item {
+            position: absolute;
+            transition: all 0.3s ease;
+            cursor: move;
+            z-index: 10;
+        }
+
+        .aquarium-item img {
+            max-width: 60px;
+            height: auto;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .aquarium-item.fish img {
+            animation: swim 20s infinite linear;
+        }
+
+        @keyframes swim {
+            0% { transform: scaleX(1); }
+            45% { transform: scaleX(1); }
+            50% { transform: scaleX(-1); }
+            95% { transform: scaleX(-1); }
+            100% { transform: scaleX(1); }
+        }
+
+        /* Add responsive container */
+        .aquarium-container {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .draggable-image img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        /* Add styles for resize handles */
+        .aquarium-item {
+            position: absolute;
+            cursor: move;
+            z-index: 10;
+        }
+
+        .resize-handle {
+            width: 12px;
+            height: 12px;
+            background-color: white;
+            border: 2px solid #00838f;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 1002;
+        }
+
+        .resize-handle.nw { top: -6px; left: -6px; cursor: nw-resize; }
+        .resize-handle.ne { top: -6px; right: -6px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -6px; right: -6px; cursor: se-resize; }
+
+        .aquarium-item {
+            position: absolute;
+            cursor: move;
+        }
+
+        .aquarium-item.ui-resizable-resizing {
+            z-index: 1000;
+        }
+
+        .apply-resize {
+            position: absolute;
+            top: -25px;
+            right: 0;
+            z-index: 1003;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'user:indexfish' %}">FishGrid</a>
+            <div class="navbar-nav ml-auto">
+                <a class="nav-item nav-link" href="{% url 'user:indexfish' %}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a class="nav-item nav-link" href="{% url 'user:user_dashboard' %}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <div class="user-info">
+                    <a class="nav-item nav-link" href="{% url 'user:user_dashboard' %}">
+                        <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                        <i class="fas fa-user-circle profile-icon"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">Aquarium Builder</h1>
+            <p class="text-center mb-5">Design your dream aquarium by selecting fish, plants, and decorations!</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Aquarium Design Canvas -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Aquarium Design</h5>
+                    <div>
+                        <button id="save-design" class="btn btn-primary btn-sm">Save Design</button>
+                        <button id="clear-design" class="btn btn-outline-danger btn-sm">Clear</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-row mb-3">
+                        <div class="col-md-6">
+                            <label for="design-name">Design Name</label>
+                            <input type="text" id="design-name" class="form-control" value="{{ design.name|default:'My Aquarium' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="water-type">Water Type</label>
+                            <select id="water-type" class="form-control">
+                                {% for water_type in water_types %}
+                                <option value="{{ water_type.id }}" {% if design.water_type_id == water_type.id %}selected{% endif %}>{{ water_type.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="aquarium-shape">Aquarium Shape</label>
+                            <select class="form-control" id="aquarium-shape" name="shape">
+                                <option value="rectangle">Rectangle</option>
+                                <option value="bowfront">Bow Front</option>
+                                <option value="cylinder">Cylinder</option>
+                                <option value="pillar">Tall Pillar</option>
+                                <option value="hexagonal">Hexagonal</option>
+                                <option value="octagonal">Octagonal</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="aquarium-width">Width (inches)</label>
+                            <input type="number" class="form-control" id="aquarium-width" name="width" min="12" max="200" value="24">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="aquarium-height">Height (inches)</label>
+                            <input type="number" class="form-control" id="aquarium-height" name="height" min="12" max="200" value="18">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="design-description">Description</label>
+                        <textarea id="design-description" class="form-control" rows="2">{{ design.description|default:'' }}</textarea>
+                    </div>
+                    
+                    <!-- Aquarium Canvas -->
+                    <div class="aquarium-container">
+                        <div id="aquarium-canvas" class="rectangle">
+                            <div class="aquarium-bottom"></div>
+                            <div id="items-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Item Selection Panel -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="item-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="fish-tab" data-toggle="tab" href="#fish-panel" role="tab">Fish</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="plants-tab" data-toggle="tab" href="#plants-panel" role="tab">Plants</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="decorations-tab" data-toggle="tab" href="#decorations-panel" role="tab">Decorations</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="item-tab-content">
+                        <!-- Fish Panel -->
+                        <div class="tab-pane fade show active" id="fish-panel" role="tabpanel">
+                            <div class="form-group">
+                                <input type="text" id="fish-search" class="form-control" placeholder="Search fish...">
+                            </div>
+                            <div id="fish-list" class="item-list">
+                                <!-- Fish items will be loaded here -->
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Plants Panel -->
+                        <div class="tab-pane fade" id="plants-panel" role="tabpanel">
+                            <div class="form-group">
+                                <input type="text" id="plant-search" class="form-control" placeholder="Search plants...">
+                            </div>
+                            <div id="plant-list" class="item-list">
+                                <!-- Plant items will be loaded here -->
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Decorations Panel -->
+                        <div class="tab-pane fade" id="decorations-panel" role="tabpanel">
+                            <div class="form-group">
+                                <input type="text" id="decoration-search" class="form-control" placeholder="Search decorations...">
+                            </div>
+                            <div id="decoration-list" class="item-list">
+                                <!-- Decoration items will be loaded here -->
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+          
+
+    <script>
+        $(document).ready(function() {
+            // Static data arrays with only images
+            const items = {
+                fish: [
+                    { image_url: "https://i.imgur.com/8V5Od5Z.png" },
+                    { image_url: "https://i.imgur.com/KL2Dyx0.png" }
+                ],
+                plants: [
+                    { image_url: "https://i.imgur.com/Bh1I9jF.png" },
+                    { image_url: "https://i.imgur.com/YVr8Zyl.png" }
+                ],
+                decorations: [
+                    { image_url: "https://i.imgur.com/QxwWJJH.png" },
+                    { image_url: "https://i.imgur.com/L8Qk9Hy.png" }
+                ]
+            };
+
+            // Function to create draggable images - smaller preview size
+            function createDraggableImage(imageUrl) {
+                return `
+                    <div class="draggable-image" style="display: inline-block; margin: 10px;">
+                        <img src="${imageUrl}" style="width: 50px; height: 50px; cursor: move; object-fit: contain;">
+                    </div>
+                `;
+            }
+
+            // Load images into panels
+            $('#fish-list').html(items.fish.map(item => createDraggableImage(item.image_url)).join(''));
+            $('#plant-list').html(items.plants.map(item => createDraggableImage(item.image_url)).join(''));
+            $('#decoration-list').html(items.decorations.map(item => createDraggableImage(item.image_url)).join(''));
+
+            // Make images draggable
+            $('.draggable-image').draggable({
+                helper: 'clone',
+                cursor: 'move',
+                revert: 'invalid',
+                start: function(event, ui) {
+                    $(ui.helper).css({
+                        'width': '50px',
+                        'height': '50px',
+                        'z-index': 1000
+                    });
+                }
+            });
+
+            // Modify the drop handler to include resize handles
+            $("#aquarium-canvas").droppable({
+                accept: ".draggable-image",
+                drop: function(event, ui) {
+                    const aquariumBounds = $(this).offset();
+                    const maxX = $(this).width() - 50;
+                    const maxY = $(this).height() - 50;
+                    
+                    let left = ui.position.left - aquariumBounds.left;
+                    let top = ui.position.top - aquariumBounds.top;
+                    
+                    left = Math.min(Math.max(0, left), maxX);
+                    top = Math.min(Math.max(0, top), maxY);
+                    
+                    const droppedImage = $(ui.helper).find('img').attr('src');
+                    
+                    const aquariumItem = $(`
+                        <div class="aquarium-item" style="position: absolute; left: ${left}px; top: ${top}px;">
+                            <img src="${droppedImage}" style="width: 50px; height: 50px; object-fit: contain;">
+                            <div class="resize-handle nw"></div>
+                            <div class="resize-handle ne"></div>
+                            <div class="resize-handle sw"></div>
+                            <div class="resize-handle se"></div>
+                        </div>
+                    `);
+
+                    // Make item draggable
+                    aquariumItem.draggable({
+                        containment: "#aquarium-canvas",
+                        start: function() {
+                            $(this).css('z-index', 1000);
+                        },
+                        stop: function() {
+                            $(this).css('z-index', 10);
+                        }
+                    });
+
+                    // Make item resizable
+                    aquariumItem.resizable({
+                        handles: {
+                            'nw': '.resize-handle.nw',
+                            'ne': '.resize-handle.ne',
+                            'sw': '.resize-handle.sw',
+                            'se': '.resize-handle.se'
+                        },
+                        aspectRatio: true,
+                        containment: "#aquarium-canvas",
+                        minWidth: 20,
+                        minHeight: 20,
+                        maxWidth: 200,
+                        maxHeight: 200,
+                        start: function(event, ui) {
+                            $(this).css('z-index', 1000);
+                            // Show apply button
+                            $(this).find('.apply-resize').show();
+                            // Store original dimensions
+                            $(this).data('original-width', $(this).width());
+                            $(this).data('original-height', $(this).height());
+                        },
+                        resize: function(event, ui) {
+                            // Update the image size during resize
+                            $(this).find('img').css({
+                                width: '100%',
+                                height: '100%'
+                            });
+                            // Keep resize handles visible during resize
+                            $(this).find('.resize-handle').css('display', 'block');
+                        },
+                        stop: function(event, ui) {
+                            if (!$(this).find('.apply-resize').is(':visible')) {
+                                // If apply button is not visible, revert to original size
+                                $(this).css({
+                                    width: $(this).data('original-width'),
+                                    height: $(this).data('original-height')
+                                });
+                            }
+                            $(this).css('z-index', 10);
+                        }
+                    });
+                    
+                    // Handle apply button click
+                    aquariumItem.find('.apply-resize').on('click', function(e) {
+                        e.stopPropagation();
+                        $(this).hide();
+                        const item = $(this).closest('.aquarium-item');
+                        item.data('original-width', item.width());
+                        item.data('original-height', item.height());
+                    });
+                    
+                    $(this).append(aquariumItem);
+                }
+            });
+
+            // Add this inside your $(document).ready function
+            $('#aquarium-shape').on('change', function() {
+                const shape = $(this).val();
+                const canvas = $('#aquarium-canvas');
+                
+                // Remove all shape classes and add the selected one
+                canvas.removeClass('rectangle bowfront cylinder pillar hexagonal octagonal')
+                      .addClass(shape);
+                
+                // Adjust container size based on shape
+                const container = $('.aquarium-container');
+                container.css({
+                    'min-height': shape === 'pillar' ? '700px' : '500px'
+                });
+                
+                // Clear any existing items when shape changes
+                $('#items-container').empty();
+            });
+
+            // Add this inside your $(document).ready function
+            $('#clear-design').on('click', function() {
+                // Clear all items from the aquarium canvas
+                $('#aquarium-canvas').find('.aquarium-item').remove();
+                
+                // Reset form fields to default values
+                $('#design-name').val('My Aquarium');
+                $('#water-type').prop('selectedIndex', 0);
+                $('#aquarium-shape').val('rectangle');
+                $('#aquarium-width').val('24');
+                $('#aquarium-height').val('18');
+                $('#design-description').val('');
+            });
+
+            // Function to update aquarium dimensions
+            function updateAquariumDimensions() {
+                const width = $('#aquarium-width').val();
+                const height = $('#aquarium-height').val();
+                
+                // Convert inches to pixels (using a scale factor)
+                const scaleFactorX = 20; // 20 pixels per inch
+                const scaleFactorY = 20; // 20 pixels per inch
+                
+                const pixelWidth = width * scaleFactorX;
+                const pixelHeight = height * scaleFactorY;
+                
+                $('#aquarium-canvas').css({
+                    'width': `${pixelWidth}px`,
+                    'height': `${pixelHeight}px`
+                });
+            }
+
+            // Event listeners for width and height input changes
+            $('#aquarium-width, #aquarium-height').on('input', updateAquariumDimensions);
+
+            // Initialize dimensions on page load
+            updateAquariumDimensions();
+        });
+    </script>
+</body>
+
+</html>

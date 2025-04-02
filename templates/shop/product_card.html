@@ -1,0 +1,11 @@
+{% for item in recommended_products %}
+<div class="col-md-4 mb-4">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ item.Product }}</h5>
+            <p class="card-text"><strong>Popularity Rating:</strong> {{ item.PopularityScore }} / 100</p>
+            <a href="{% url 'shop:add_product' %}?product_name={{ item.Product|urlencode }}" class="btn btn-primary">Add to My Shop</a>
+        </div>
+    </div>
+</div>
+{% endfor %}

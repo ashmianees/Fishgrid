@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ product.product_name }} - {{ category.shop_name }}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
+            color: #006064;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: rgba(0, 151, 167, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: #006064 !important;
+        }
+
+        .product-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 96, 100, 0.1);
+            margin-top: 50px;
+        }
+
+        .product-img {
+            height: 400px;
+            object-fit: cover;
+            width: 100%;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .product-details {
+            padding: 30px;
+        }
+
+        .btn-primary {
+            background-color: #00838f;
+            border: none;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #006064;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 96, 100, 0.2);
+        }
+
+        .feedback-section {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 50px;
+        }
+
+        .feedback-item {
+            background-color: rgba(0, 151, 167, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-outline-primary {
+            color: #00838f;
+            border-color: #00838f;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            color: #fff;
+            background-color: #00838f;
+            border-color: #00838f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 96, 100, 0.2);
+        }
+
+        .btn-outline-primary:focus,
+        .btn-outline-primary.focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 131, 143, 0.5);
+        }
+
+        .btn-outline-primary:not(:disabled):not(.disabled):active,
+        .btn-outline-primary:not(:disabled):not(.disabled).active {
+            color: #fff;
+            background-color: #00838f;
+            border-color: #00838f;
+        }
+
+        .btn-outline-primary:not(:disabled):not(.disabled):active:focus,
+        .btn-outline-primary:not(:disabled):not(.disabled).active:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 131, 143, 0.5);
+        }
+
+        .badge {
+            margin-left: 10px;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+        
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        
+        .text-info {
+            color: #17a2b8 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'user:indexfish' %}">FishGrid</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user:indexfish' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'shop:view_cart' %}">Cart</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'shop:view_orders' %}">Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'shop:view_wishlist' %}">Wishlist</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user:user_dashboard' %}">Dashboard</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user:login' %}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="product-container">
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="{{ product.image.url }}" class="product-img" alt="{{ product.product_name }}">
+                </div>
+                <div class="col-md-6 product-details">
+                    <h1>{{ product.product_name }}</h1>
+                    <p class="lead">{{ product.product_description }}</p>
+                    <h3>Price: ₹{{ product.price }}</h3>
+                    <p>Size: {{ product.size }}</p>
+                    {% if product.expiry_date %}
+                        <p class="{% if product.is_expired %}text-danger{% else %}text-info{% endif %}">
+                            Expiry Date: {{ product.expiry_date|date:"F d, Y" }}
+                            {% if product.is_expired %}
+                                <span class="badge badge-danger">Expired</span>
+                            {% else %}
+                                <span class="badge badge-success">Valid</span>
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                    {% if product.quantity > 0 %}
+                    <form method="post" action="{% url 'shop:add_to_cart' product.id shop.id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="quantity">Quantity:</label>
+                            <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1"
+                                max="{{ product.quantity }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">Add to Cart</button>
+                    </form>
+                    {% else %}
+                    <p class="text-danger">Out of stock</p>
+                    {% endif %}
+
+
+                    {% if user.is_authenticated %}
+                    <button id="wishlistBtn" class="btn btn-outline-primary mt-3" data-product-id="{{ product.id }}">
+                        {% if is_in_wishlist %}
+                        <i class="fas fa-heart"></i> Remove from Wishlist
+                        {% else %}
+                        <i class="far fa-heart"></i> Add to Wishlist
+                        {% endif %}
+                    </button>
+                    {% else %}
+                    <a href="{% url 'user:login' %}" class="btn btn-outline-primary mt-3">Login to add to Wishlist</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="feedback-section">
+            <h2>Customer Feedback</h2>
+            {% if user.is_authenticated %}
+            {% if has_purchased %}
+            <form method="post" action="{% url 'shop:submit_feedback' product_id=product.id shop_id=shop.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="rating">Rating:</label>
+                    <select id="rating" name="rating" class="form-control" required>
+                        <option value="1">1 - Very Poor</option>
+                        <option value="2">2 - Poor</option>
+                        <option value="3">3 - Average</option>
+                        <option value="4">4 - Good</option>
+                        <option value="5">5 - Excellent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment:</label>
+                    <textarea id="comment" name="comment" class="form-control" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            </form>
+            {% else %}
+            <p class="alert alert-info">You need to purchase this product before leaving feedback.</p>
+            {% endif %}
+            {% else %}
+            <p class="alert alert-info">Please <a href="{% url 'user:login' %}">log in</a> to leave feedback.</p>
+            {% endif %}
+            <hr>
+            <h3>Recent Feedback</h3>
+            <div class="feedback-list">
+                {% for fb in feedback %}
+                <div class="feedback-item">
+                    <p><strong>Rating:</strong> {{ fb.rating }}/5</p>
+                    <p><strong>Comment:</strong> {{ fb.comment }}</p>
+                    <p><small>By {{ fb.user.username }} on {{ fb.created_at }}</small></p>
+                </div>
+                {% empty %}
+                <p>No feedback yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#wishlistBtn').click(function (e) {
+                e.preventDefault();  // Prevent default button behavior
+                var productId = $(this).data('product-id');
+                var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+                $.ajax({
+                    url: '/shop/toggle-wishlist/' + productId + '/',
+                    type: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    success: function (data) {
+                        if (data.success) {
+                            if (data.action === 'added') {
+                                $('#wishlistBtn').html('<i class="fas fa-heart"></i> Remove from Wishlist');
+                            } else {
+                                $('#wishlistBtn').html('<i class="far fa-heart"></i> Add to Wishlist');
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("An error occurred: " + error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

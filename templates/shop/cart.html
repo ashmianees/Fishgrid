@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Your Cart</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
+            color: #006064;
+            min-height: 100vh;
+        }
+        .navbar {
+            background-color: rgba(0, 151, 167, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        .navbar-brand, .nav-link {
+            color: #006064 !important;
+        }
+        .cart-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 50px;
+            box-shadow: 0 10px 20px rgba(0, 96, 100, 0.1);
+        }
+        .cart-item {
+            background-color: rgba(0, 151, 167, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .cart-item img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .btn-primary {
+            background-color: #00838f;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #006064;
+        }
+        .btn-danger {
+            background-color: #d32f2f;
+            border: none;
+        }
+        .btn-danger:hover {
+            background-color: #b71c1c;
+        }
+        .quantity-input {
+            max-width: 60px;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-btn {
+            background-color: #00838f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">FishGrid</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user:indexfish'%}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'shop:view_orders' %}">Orders</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container cart-container">
+        <h1 class="mb-4">Your Cart</h1>
+        {% if items %}
+            {% for item in items %}
+                <div class="cart-item" data-item-id="{{ item.id }}">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.product_name }}" class="img-fluid">
+                        </div>
+                        <div class="col-md-4">
+                            <h5>{{ item.product.product_name }}</h5>
+                            <p class="text-muted">{{ item.shop.shop_name }}</p>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="quantity-controls">
+                                <button class="quantity-btn decrease">-</button>
+                                <input type="number" class="form-control quantity-input" data-price="{{ item.product.price }}" value="{{ item.quantity }}" min="1" readonly>
+                                <button class="quantity-btn increase">+</button>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            ₹<span class="item-total">{{ item.total_price }}</span>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-danger btn-sm remove-item">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="text-right mt-4">
+                <h3>Total: ₹<span id="cart-total">{{ total_price }}</span></h3>
+                <a href="{% url 'shop:checkout' %}" class="btn btn-primary btn-lg mt-3">Proceed to Checkout</a>
+            </div>
+        {% else %}
+            <p class="text-center">Your cart is empty.</p>
+            <div class="text-center mt-4">
+                <a href="{% url 'user:indexfish' %}" class="btn btn-primary">Continue Shopping</a>
+            </div>
+        {% endif %}
+    </div>
+
+    
+    <script>
+        function updateTotalPrice() {
+            let totalPrice = 0;
+            $('.item-total').each(function() {
+                totalPrice += parseFloat($(this).text());
+            });
+            $('#cart-total').text(totalPrice.toFixed(2));
+        }
+
+        function updateCartItem(itemId, quantity) {
+            console.log('Updating cart item:', itemId, quantity);
+            $.ajax({
+                url: '{% url "shop:update_cart_item" %}',
+                type: 'POST',
+                data: {
+                    'item_id': itemId,
+                    'quantity': quantity,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log('Update response:', response);
+                    if (response.success) {
+                        const cartItem = $(`.cart-item[data-item-id="${itemId}"]`);
+                        cartItem.find('.quantity-input').val(response.quantity);
+                        cartItem.find('.item-total').text(response.total_price);
+                        updateTotalPrice();
+                    } else {
+                        alert(response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Update error:', error);
+                    alert('An error occurred while updating the cart.');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            console.log('Document ready');
+
+            $(document).on('click', '.quantity-btn', function() {
+                console.log('Quantity button clicked');
+                const input = $(this).siblings('.quantity-input');
+                let quantity = parseInt(input.val());
+                
+                if ($(this).hasClass('increase')) {
+                    quantity++;
+                } else if ($(this).hasClass('decrease') && quantity > 1) {
+                    quantity--;
+                }
+
+                const itemId = $(this).closest('.cart-item').data('item-id');
+                console.log('Item ID:', itemId, 'New quantity:', quantity);
+                updateCartItem(itemId, quantity);
+            });
+
+            $(document).on('click', '.remove-item', function() {
+                console.log('Remove button clicked');
+                const itemId = $(this).closest('.cart-item').data('item-id');
+                $.ajax({
+                    url: '{% url "shop:remove_from_cart" 0 %}'.replace('0', itemId),
+                    type: 'POST',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        console.log('Remove response:', response);
+                        if (response.success) {
+                            $(`.cart-item[data-item-id="${itemId}"]`).remove();
+                            $('#cart-total').text(response.new_total_price);
+                            
+                            if (response.items_count === 0) {
+                                // If cart is empty, reload the page
+                                location.reload();
+                            }
+                        } else {
+                            alert(response.error || 'An error occurred while removing the item.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Remove error:', error);
+                        alert('An error occurred while removing the item. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

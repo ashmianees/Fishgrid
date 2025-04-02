@@ -1,0 +1,93 @@
+{% load static %}
+<div class="profile-container">
+    <h1 class="profile-title">Update Profile</h1>
+    <form id="profileForm" method="POST" action="{% url 'user:profile_update' %}">
+        {% csrf_token %}
+        <div class="profile-info">
+            <div class="profile-item"><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</div>
+            <div class="profile-item"><strong>Email:</strong> {{ user.email }}</div>
+            <div class="profile-item">
+                <strong>Contact:</strong> 
+                <input type="text" id="contact" name="contact" value="{{ user.contact }}">
+                <div class="error-message" id="contact-error"></div>
+            </div>
+            <div class="profile-item">
+                <strong>House Name:</strong> 
+                <input type="text" id="house_name" name="house_name" value="{{ user.house_name }}">
+                <div class="error-message" id="house_name-error"></div>
+            </div>
+            <div class="profile-item">
+                <strong>City:</strong> 
+                <input type="text" id="city" name="city" value="{{ user.city }}">
+                <div class="error-message" id="city-error"></div>
+            </div>
+            <div class="profile-item">
+                <strong>Pincode:</strong> 
+                <input type="text" id="postal_code" name="postal_code" value="{{ user.postal_code }}">
+                <div class="error-message" id="postal_code-error"></div>
+            </div>
+        </div>
+        <button type="submit" class="button" id="updateButton">Update Profile</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    const validations = {
+        contact: {
+            regex: /^[6-9]\d{9}$/,
+            error: 'Please enter a valid 10-digit phone number starting with 6-9'
+        },
+        house_name: {
+            regex: /^[a-zA-Z0-9\s]{1,50}$/,
+            error: 'House name should be 1-50 characters long and contain only letters, numbers, and spaces'
+        },
+        city: {
+            regex: /^[a-zA-Z\s]{1,50}$/,
+            error: 'City should be 1-50 characters long and contain only letters and spaces'
+        },
+        postal_code: {
+            regex: /^\d{6}$/,
+            error: 'Please enter a valid 6-digit postal code'
+        }
+    };
+
+    function validateField(field) {
+        const fieldName = field.attr('name');
+        const value = field.val().trim();
+        const errorElement = $(`#${fieldName}-error`);
+        const validation = validations[fieldName];
+
+        if (!validation.regex.test(value)) {
+            errorElement.text(validation.error);
+            field.addClass('error');
+            return false;
+        } else {
+            errorElement.text('');
+            field.removeClass('error');
+            return true;
+        }
+    }
+
+    function updateButtonState() {
+        const isValid = $('#profileForm input').toArray().every(input => validateField($(input)));
+        $('#updateButton').prop('disabled', !isValid);
+    }
+
+    $('#profileForm input').on('input', function() {
+        validateField($(this));
+        updateButtonState();
+    });
+
+    // Initial validation
+    updateButtonState();
+
+    $('#profileForm').on('submit', function(e) {
+        e.preventDefault();
+        if (!$('#updateButton').prop('disabled')) {
+            this.submit();
+        }
+    });
+});
+</script>

@@ -1,0 +1,15 @@
+[2024-11-03 12:00:44] Starting the wishlist test...
+[2024-11-03 12:00:44] Browser window maximized.
+[2024-11-03 12:00:46] Navigated to the login page.
+[2024-11-03 12:00:46] Email input field is visible.
+[2024-11-03 12:00:46] Entered email: meenuantony333@gmail.com
+[2024-11-03 12:00:46] Entered password.
+[2024-11-03 12:00:47] Clicked the login button.
+[2024-11-03 12:00:49] Current URL after login: http://127.0.0.1:8000/user/indexfish/
+[2024-11-03 12:00:49] Login successful!
+[2024-11-03 12:00:54] No error message displayed after login attempt.
+[2024-11-03 12:00:55] Clicked on 'View More'.
+[2024-11-03 12:00:56] Clicked on 'View Details'.
+[2024-11-03 12:00:56] Clicked 'Add to Wishlist' button.
+[2024-11-03 12:00:56] Clicked 'Add to Wishlist' button again (optional).
+[2024-11-03 12:01:02] Browser closed. Test completed.

@@ -1,0 +1,10 @@
+[2024-10-25 14:32:27] Starting the Selenium test...
+[2024-10-25 14:32:28] Browser window maximized.
+[2024-10-25 14:32:35] Navigated to the login page.
+[2024-10-25 14:32:35] Email input field is visible.
+[2024-10-25 14:32:35] Entered email: meenuantony333@gmail.com
+[2024-10-25 14:32:35] Entered password: ********
+[2024-10-25 14:32:47] Clicked the login button.
+[2024-10-25 14:32:47] Page URL changed after login attempt.
+[2024-10-25 14:32:47] Login failed or unexpected redirect.
+[2024-10-25 14:32:53] Browser closed. Test completed.

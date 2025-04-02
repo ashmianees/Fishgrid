@@ -1,0 +1,198 @@
+{% extends 'shop/shop_index.html' %}
+
+{% block extra_head %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+<style>
+    .error-message {
+        color: #dc3545;
+        font-size: 80%;
+        margin-top: 0.25rem;
+    }
+    .is-invalid {
+        border-color: #dc3545;
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Add Product to Your Shop</h4>
+            <form id="addProductForm" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="productName">Product Name</label>
+                    <input type="text" class="form-control" id="productName" name="product_name" value="{{ product_name }}" maxlength="255">
+                    <div class="error-message" id="productName-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea class="form-control" id="productDescription" name="product_description" rows="3" required></textarea>
+                    <div class="error-message" id="productDescription-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Price</label>
+                    <input type="number" class="form-control" id="productPrice" name="price" min="0.01" step="0.01" required>
+                    <div class="error-message" id="productPrice-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="productSize">Size</label>
+                    <input type="text" class="form-control" id="productSize" name="size" maxlength="50" required>
+                    <div class="error-message" id="productSize-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="productQuantity">Quantity</label>
+                    <input type="number" class="form-control" id="productQuantity" name="quantity" min="1" required>
+                    <div class="error-message" id="productQuantity-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="productCategory">Category</label>
+                    <select class="form-control" id="productCategory" name="category" required>
+                        <option value="">Select a category</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.category_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="error-message" id="productCategory-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="productImage">Product Image</label>
+                    <input type="file" class="form-control-file" id="productImage" name="image" accept="image/*">
+                    <div class="error-message" id="productImage-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="expiryDate">Expiry Date (Optional)</label>
+                    <input type="date" class="form-control" id="expiryDate" name="expire_date" min="{{ today|date:'Y-m-d' }}">
+                    <small class="text-muted">Leave empty if product has no expiry date</small>
+                    <div class="error-message" id="expiryDate-error"></div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Product</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        startDate: '0d',
+        autoclose: true
+    });
+
+    var validator = $('#addProductForm').validate({
+        rules: {
+            product_name: {
+                required: true,
+                maxlength: 255
+            },
+            product_description: {
+                required: true
+            },
+            price: {
+                required: true,
+                number: true,
+                min: 0.01
+            },
+            size: {
+                maxlength: 50
+            },
+            quantity: {
+                required: true,
+                digits: true,
+                min: 1
+            },
+            category: {
+                required: true
+            },
+            image: {
+                required: true,
+                accept: "image/*"
+            },
+            expiry_date: {
+                required: false,  // Make it optional
+                date: true       // Still validate if a date is entered
+            }
+        },
+        messages: {
+            product_name: {
+                required: "Please enter a product name",
+                maxlength: "Product name cannot exceed 255 characters"
+            },
+            product_description: {
+                required: "Please provide a product description"
+            },
+            price: {
+                required: "Please enter a price",
+                number: "Please enter a valid number",
+                min: "Price must be greater than zero"
+            },
+            size: {
+                maxlength: "Size cannot exceed 50 characters"
+            },
+            quantity: {
+                required: "Please enter a quantity",
+                digits: "Please enter a whole number",
+                min: "Quantity must be at least 1"
+            },
+            category: {
+                required: "Please select a category"
+            },
+            image: {
+                required: "Please upload a product image",
+                accept: "Please upload a valid image file"
+            },
+            expiry_date: {
+                date: "Please enter a valid date"
+            }
+        },
+        errorPlacement: function(error, element) {
+            var elementId = element.attr('id');
+            $('#' + elementId + '-error').text(error.text());
+        },
+        highlight: function(element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+            var elementId = $(element).attr('id');
+            $('#' + elementId + '-error').text('');
+        },
+        submitHandler: function(form) {
+            form.submit();
+        }
+    });
+
+    // Add custom validation for future date if a date is entered
+    $('#expiryDate').on('change', function() {
+        if (this.value) {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate <= today) {
+                $('#expiryDate-error').text('Expiry date must be in the future.');
+                $(this).addClass('is-invalid');
+            } else {
+                $('#expiryDate-error').text('');
+                $(this).removeClass('is-invalid');
+            }
+        } else {
+            $('#expiryDate-error').text('');
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    // Real-time validation
+    $('#addProductForm input, #addProductForm textarea, #addProductForm select').on('blur keyup change', function() {
+        $(this).valid();
+    });
+});
+</script>
+{% endblock %}

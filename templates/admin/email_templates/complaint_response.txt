@@ -1,0 +1,18 @@
+Dear {{ customer_name }},
+
+We have received your complaint regarding {{ shop_name }}. As the platform administrators, we take all feedback seriously and would like to address your concerns promptly.
+
+To better assist you, we kindly request that you contact our customer service team directly. Our dedicated staff will be able to provide you with personalized support and work towards resolving your issue.
+
+Please reach out to us at:
+
+Email: admin_customerservice@example.com
+Phone: +1 (987) 654-3210
+Operating Hours: Monday to Friday, 9 AM to 5 PM
+
+When contacting us, please reference the complaint ID: {{ complaint_id }}
+
+We appreciate your patience and look forward to resolving this matter to your satisfaction.
+
+Best regards,
+Admin Team

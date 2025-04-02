@@ -1,0 +1,12 @@
+[2024-10-25 14:32:27] Starting the Selenium test for Price Comparison...
+[2024-10-25 14:32:28] Navigated to the homepage.
+[2024-10-25 14:32:30] Clicked on Login link.
+[2024-10-25 14:32:32] Email input field is visible.
+[2024-10-25 14:32:33] Entered email: ashmianees12@gmail.com
+[2024-10-25 14:32:34] Entered password: ********
+[2024-10-25 14:32:36] Clicked login button.
+[2024-10-25 14:32:38] Page URL changed after login attempt.
+[2024-10-25 14:32:40] Login successful, redirected to dashboard.
+[2024-10-25 14:32:43] Entered search term: yellow parrot fish.
+[2024-10-25 14:32:45] Clicked search button.
+[2024-10-25 14:32:53] Browser closed. Test completed.

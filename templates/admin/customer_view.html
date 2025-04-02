@@ -1,0 +1,96 @@
+{% extends 'admin/admin_index.html' %}
+{% load static %}
+{% block content %}
+
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Registered Users</h4>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">User List</div>
+                            <div class="float-right">
+                                <input type="text" id="userSearch" class="form-control form-control-sm rounded-pill" placeholder="Search users..." style="width: 200px; border-radius: 50px;">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="userdatatable" class="display table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Sl No</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Contact</th>
+                                            <th>House Name</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in profiles %}
+                                        <tr class="user-row">
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ user.first_name }} {{ user.last_name }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>{{ user.contact }}</td>
+                                            <td>{{ user.house_name }}</td>
+                                            <td>{{ user.city }}</td>
+                                            <td>{{ user.postal_code }}</td>
+                                            <td>
+                                                <a href="{% url 'toggleusers' user.id %}" class="btn {% if user.is_active %}btn-success{% else %}btn-danger{% endif %} toggle-btn" data-user-id="{{ user.id }}">
+                                                    {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div id="noDataFound" style="display: none; text-align: center; padding: 20px;">
+                                    No data found.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('userSearch');
+    const tableRows = document.querySelectorAll('.user-row');
+    const noDataFound = document.getElementById('noDataFound');
+
+    let filteredRows = [...tableRows];
+
+    function showRows() {
+        tableRows.forEach(row => row.style.display = 'none');
+        filteredRows.forEach(row => row.style.display = '');
+
+        if (filteredRows.length === 0) {
+            noDataFound.style.display = 'block';
+        } else {
+            noDataFound.style.display = 'none';
+        }
+    }
+
+    function filterRows() {
+        const searchTerm = searchInput.value.toLowerCase();
+        filteredRows = [...tableRows].filter(row => 
+            row.textContent.toLowerCase().includes(searchTerm)
+        );
+        showRows();
+    }
+
+    searchInput.addEventListener('input', filterRows);
+
+    showRows();
+});
+</script>
+
+{% endblock %}

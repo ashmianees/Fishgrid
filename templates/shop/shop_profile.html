@@ -1,0 +1,33 @@
+{% extends 'shop/index.html' %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Shop Profile</h4>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card" style="width: 100%; max-width: 1000px; margin: auto; height: auto;">  <!-- Adjust width here -->
+                        <div class="card-body">
+                            <h5 class="card-title">{{ shop_detail.shop_name }}</h5>
+                            <div class="row">
+                                <div class="col-md-12 text-center">
+                                    <img src="{{ shop_detail.shop_image.url }}" alt="Shop Image" class="img-fluid mb-4" style="max-width: 100%; height: auto;">
+                                </div>
+                                <div class="col-md-12">
+                                    <p><strong>Owner Name:</strong> {{ shop_detail.user.first_name }} {{ shop_detail.user.last_name }} </p>
+                                    <p><strong>Location:</strong> {{ shop_detail.shop_location }}</p>
+                                    <p><strong>Pincode:</strong> {{ shop_detail.pincode }}</p>
+                                    <p><strong>Mobile Number:</strong> {{ shop_detail.mobile_number }}</p>
+                                    <p><strong>Email ID:</strong> {{ shop_detail.user.email }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

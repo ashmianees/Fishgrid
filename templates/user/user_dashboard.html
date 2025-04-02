@@ -1,0 +1,584 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - FishGrid</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e0f7fa;
+            color: #006064;
+            padding-top: 60px;
+        }
+
+        .navbar {
+            background-color: rgba(0, 151, 167, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 151, 167, 0.1);
+            padding: 0.5rem 1rem;
+        }
+
+        .navbar-brand {
+            color: #006064 !important;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            margin-right: 2rem;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-nav .nav-link {
+            color: #006064 !important;
+            margin-left: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(0, 151, 167, 0.1);
+        }
+
+        .navbar-nav .nav-link i {
+            margin-right: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-left: 1rem;
+        }
+
+        .user-name {
+            margin-right: 1rem;
+            font-weight: 500;
+            color: #006064;
+        }
+
+        .profile-icon {
+            font-size: 24px;
+            color: #006064;
+            cursor: pointer;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #ffffff;
+            border-right: 1px solid rgba(0, 151, 167, 0.1);
+            padding-top: 20px;
+            height: calc(100vh - 60px);
+            position: fixed;
+            top: 60px;
+            left: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar-item {
+            padding: 12px 20px;
+            color: #00838f;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            text-decoration: none;
+            display: block;
+        }
+
+        .sidebar-item:hover,
+        .sidebar-item.active {
+            background-color: rgba(0, 151, 167, 0.1);
+            border-left-color: #00838f;
+            color: #00838f;
+        }
+
+        .sidebar-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-item a {
+            color: inherit;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 151, 167, 0.1);
+            margin-top: 76px;
+            width: calc(100% - 270px);
+            overflow-x: hidden;
+        }
+
+        h6 {
+            color: #00838f;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .sub-menu {
+            padding-left: 40px;
+            display: none;
+        }
+
+        .sub-menu a {
+            color: #0097a7;
+            text-decoration: none;
+            display: block;
+            padding: 8px 0;
+            transition: color 0.3s ease;
+        }
+
+        .sub-menu a:hover {
+            color: #006064;
+        }
+
+        .sub-menu i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Profile styles */
+        .profile-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 151, 167, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .profile-title {
+            color: #00838f;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            display: grid;
+            gap: 15px;
+        }
+
+        .profile-item {
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .profile-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 151, 167, 0.1);
+        }
+
+        .profile-item strong {
+            color: #006064;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .button {
+            background-color: #00838f;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #006064;
+        }
+
+        .button:disabled {
+            background-color: #b2ebf2;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #b2ebf2;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #006064;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #00838f;
+            box-shadow: 0 0 0 2px rgba(0, 131, 143, 0.2);
+        }
+
+        input[type="text"].error {
+            border-color: #d32f2f;
+        }
+
+        input[type="text"].error:focus {
+            box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
+        }
+
+        .dashboard-content {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 151, 167, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-content h2 {
+            color: #00838f;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-content p {
+            color: #006064;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .navbar-nav .nav-link.become-shop {
+            background-color: rgba(0, 151, 167, 0.1);
+            margin-left: 1rem;
+        }
+
+        .navbar-nav .nav-link.become-shop:hover {
+            background-color: rgba(0, 151, 167, 0.2);
+        }
+
+        .container-fluid {
+            padding: 0 15px;
+            width: 100%;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .row {
+            margin-right: 0;
+            margin-left: 0;
+        }
+
+        /* Add responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'user:indexfish' %}">FishGrid</a>
+            <div class="navbar-nav ml-auto">
+                <a class="nav-item nav-link" href="{% url 'user:indexfish' %}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                {% if not user.is_shop and not has_pending_shop_request %}
+                    <a class="nav-item nav-link become-shop" href="{% url 'user:create_shop_request' %}">
+                        <i class="fas fa-store"></i> Become a Shop
+                    </a>
+                {% elif has_pending_shop_request %}
+                <a class="nav-item nav-link" href="">
+                    <i class="fas fa-store"></i> Your shop request is pending approval.
+                </a>
+                    
+                {% endif %}
+                <div class="user-info">
+                    <a class="nav-item nav-link" href="{% url 'user:user_dashboard' %}">
+                        <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                        <i class="fas fa-user-circle profile-icon"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="sidebar-item active" id="dashboard">
+                    <a href="{% url 'user:dashboard_content' %}" class="load-content">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="sidebar-item" id="profileManagement">
+                    <i class="fas fa-user"></i>
+                    <span>Profile Management</span>
+                </div>
+                <div class="sub-menu" id="profileSubMenu">
+                    <a href="{% url 'user:profile_view' %}" class="load-content"><i class="fas fa-user-circle"></i>
+                        Profile View</a>
+                    <a href="{% url 'user:profile_update' %}" class="load-content"><i class="fas fa-user-edit"></i>
+                        Profile Update</a>
+                </div>
+                <div class="sidebar-item" id="orderHistory">
+                    <a href="{% url 'user:order_history' %}" class="load-content">
+                        <i class="fas fa-history"></i>
+                        <span>Order History</span>
+                    </a>
+                </div>
+                <!-- Add this new sidebar item for Wishlist -->
+                <div class="sidebar-item" id="wishlist">
+                    <a href="{% url 'shop:view_wishlist' %}" class="">
+                        <i class="fas fa-heart"></i>
+                        <span>Wishlist</span>
+                    </a>
+                </div>
+                <!-- Add this new sidebar item for Disease Detection -->
+                <div class="sidebar-item" id="diseaseDetection">
+                    <a href="{% url 'user:disease_detection' %}" class="load-content">
+                        <i class="fas fa-microscope"></i>
+                        <span>Disease Detection</span>
+                    </a>
+                </div>
+                <!-- Add this new sidebar item for Aquarium Builder after the Disease Detection item -->
+                <div class="sidebar-item" id="aquariumBuilder">
+                    <a href="{% url 'shop:aquarium_builder' %}" class="">
+                        <i class="fas fa-fish"></i>
+                        <span>Aquarium Builder</span>
+                    </a>
+                </div>
+                
+                <div class="sidebar-item">
+                    <a id="logout-link" href="{% url 'main:logout' %}" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-9 col-lg-10 main-content">
+                <h6>Welcome to Your Dashboard</h6>
+                <div id="contentArea">
+                    <!-- Content will be loaded here -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <form id="shopRequestForm" style="display: none;">
+        {% csrf_token %}
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to load content
+            function loadContent(url) {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'html',  // Change this to 'html'
+                    success: function(data) {
+                        try {
+                            // Try to parse the response as JSON
+                            var jsonData = JSON.parse(data);
+                            if (jsonData.orders) {
+                                // If it's order history data, render it
+                                renderOrderHistory(JSON.parse(jsonData.orders));
+                            } else {
+                                // For other JSON data, handle accordingly
+                                $('#contentArea').html(JSON.stringify(jsonData));
+                            }
+                        } catch (e) {
+                            // If it's not JSON, it's probably HTML content
+                            $('#contentArea').html(data);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error loading content:", error);
+                        $('#contentArea').html('<p>Error loading content. Please try again.</p>');
+                    }
+                });
+            }
+
+            // Initial load of dashboard content
+            loadContent("{% url 'user:dashboard_content' %}");
+
+            $('#profileManagement').click(function () {
+                $('#profileSubMenu').slideToggle();
+                $(this).toggleClass('active');
+            });
+
+            $('.sidebar-item').click(function () {
+                $('.sidebar-item').removeClass('active');
+                $(this).addClass('active');
+            });
+
+            $('.load-content').click(function (e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                if (url.includes('view_wishlist')) {
+                    // If it's the wishlist link, navigate to the page instead of loading content
+                    window.location.href = url;
+                } else {
+                    loadContent(url);
+                }
+            });
+
+            // Handle dashboard icon click
+            $('#dashboard').click(function (e) {
+                e.preventDefault();
+                $('.sidebar-item').removeClass('active');
+                $(this).addClass('active');
+                loadContent("{% url 'user:dashboard_content' %}");
+            });
+
+            $('.become-shop').click(function (e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Become a Shop',
+                    text: "Are you sure you want to submit a request to become a shop?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, submit request!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{% url 'user:create_shop_request' %}",
+                            type: "POST",
+                            data: $('#shopRequestForm').serialize(),
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    Swal.fire(
+                                        'Submitted!',
+                                        response.message,
+                                        'success'
+                                    );
+                                } else {
+                                    Swal.fire(
+                                        'Error!',
+                                        'There was a problem submitting your request.',
+                                        'error'
+                                    );
+                                }
+                            },
+                            error: function () {
+                                Swal.fire(
+                                    'Error!',
+                                    'There was a problem submitting your request.',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        document.getElementById('logout-link').addEventListener('click', function (e) {
+            e.preventDefault();
+            // Clear local storage and session storage
+            localStorage.clear();
+            sessionStorage.clear();
+            // Perform logout
+            window.location.href = this.href;
+        });
+
+        function renderOrderHistory(orders) {
+            let html = '<h2 class="mb-4">Your Order History</h2>';
+            if (orders.length > 0) {
+                html += '<div class="table-responsive"><table class="table table-striped">';
+                html += '<thead><tr><th>Order ID</th><th>Shop</th><th>Date</th><th>Time</th><th>Total Price</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+                orders.forEach(function(order) {
+                    html += `<tr>
+                        <td>${order[0]}</td>
+                        <td>${order[1]}</td>
+                        <td>${order[2]}</td>
+                        <td>${order[3]}</td>
+                        <td>₹${order[4]}</td>
+                        <td>${order[5]}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info toggle-details" type="button" data-order-id="${order[0]}">
+                                View Details
+                            </button>
+                            <a href="/user/download-invoice/${order[0]}/" class="btn btn-sm btn-success download-invoice" target="_blank">
+                                Download Invoice
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" class="p-0">
+                            <div class="collapse order-details" id="orderDetails${order[0]}">
+                                <div class="card card-body">
+                                    <h5>Order Details:</h5>
+                                    <p>Order ID: ${order[0]}</p>
+                                    <p>Shop: ${order[1]}</p>
+                                    <p>Date: ${order[2]}</p>
+                                    <p>Time: ${order[3]}</p>
+                                    <p>Total Price: ₹${order[4]}</p>
+                                    <p>Status: ${order[5]}</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                html += '</tbody></table></div>';
+            } else {
+                html += '<p>You haven\'t placed any orders yet.</p>';
+            }
+            $('#contentArea').html(html);
+
+            // Add event listener for toggle-details buttons
+            $('.toggle-details').on('click', function() {
+                let orderId = $(this).data('order-id');
+                $(`#orderDetails${orderId}`).collapse('toggle');
+            });
+        }
+    </script>
+</body>
+
+</html>

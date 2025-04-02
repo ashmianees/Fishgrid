@@ -1,0 +1,31 @@
+{% extends 'shop/index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Complaints for {{ shop.shop_name }}</h2>
+    {% if complaints %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Complaint</th>
+                    <th>Submitted At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                <tr>
+                    <td>{{ complaint.id }}</td>
+                    <td>{{ complaint.user.username }}</td>
+                    <td>{{ complaint.complaint_text }}</td>
+                    <td>{{ complaint.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No complaints found for this shop.</p>
+    {% endif %}
+</div>
+{% endblock %}

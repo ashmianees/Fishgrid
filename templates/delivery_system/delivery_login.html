@@ -1,0 +1,113 @@
+{% extends 'main/index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="margin-top: 120px; margin-bottom: 50px;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Delivery Boy Login</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST" class="mt-4">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   required 
+                                   placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       required 
+                                       placeholder="Enter your password">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" 
+                                            type="button" 
+                                            id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    </form>
+                    
+                    <div class="mt-3 text-center">
+                        <p>Want to become a delivery boy? 
+                            <a href="{% url 'delivery_system:apply' %}" class="text-primary">Apply here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        border-radius: 10px 10px 0 0;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-control {
+        border-radius: 5px;
+        padding: 10px;
+    }
+    .btn-primary {
+        padding: 10px;
+        font-weight: 500;
+    }
+    .alert {
+        border-radius: 5px;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<script>
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    const icon = this.querySelector('i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
+
+// Add validation for email format
+document.getElementById('email').addEventListener('input', function() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.value)) {
+        this.setCustomValidity('Please enter a valid email address');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}

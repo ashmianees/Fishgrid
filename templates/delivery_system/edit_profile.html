@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - Delivery Partner</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fontawesome.min.css' %}">
+    <style>
+        body {
+            background-color: #e9ecef;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+        .card-header img {
+            width: 30px;
+            height: auto;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <img src="{% static 'img/fish-log.png' %}" alt="FishGrid Logo">
+                        <h5>Delivery Partner Menu</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'delivery_system:delivery_dashboard' %}" class="list-group-item list-group-item-action">Dashboard</a>
+                        <a href="{% url 'delivery_system:delivery_profile' %}" class="list-group-item list-group-item-action active">Profile</a>
+                        <a href="#orders-section" class="list-group-item list-group-item-action">Orders</a>
+                        <a href="{% url 'delivery_system:delivery_logout' %}" class="list-group-item list-group-item-action">Logout</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header">
+                        <img src="{% static 'img/fish-log.png' %}" alt="FishGrid Logo">
+                        <h4>Edit Your Profile</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="POST" action="{% url 'delivery_system:update_profile' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="name">Full Name:</label>
+                                <input type="text" class="form-control" id="name" value="{{ delivery_boy.name }}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" class="form-control" id="email" value="{{ delivery_boy.email }}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone:</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" value="{{ delivery_boy.phone }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Address:</label>
+                                <textarea class="form-control" id="address" readonly>{{ delivery_boy.address }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicle_type">Vehicle Type:</label>
+                                <select class="form-control" id="vehicle_type" name="vehicle_type" required>
+                                    <option value="Bike" {% if delivery_boy.vehicle_type == 'Bike' %}selected{% endif %}>Bike</option>
+                                    <option value="Scooter" {% if delivery_boy.vehicle_type == 'Scooter' %}selected{% endif %}>Scooter</option>
+                                    <option value="Bicycle" {% if delivery_boy.vehicle_type == 'Bicycle' %}selected{% endif %}>Bicycle</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicle_details">Vehicle Details:</label>
+                                <input type="text" class="form-control" id="vehicle_details" name="vehicle_details" value="{{ delivery_boy.vehicle_details }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pincode">Pincode:</label>
+                                <input type="text" class="form-control" id="pincode" value="{{ delivery_boy.pincode }}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="license">License:</label>
+                                <div class="mb-2">
+                                    {% if delivery_boy.license %}
+                                        <img src="{{ delivery_boy.license.url }}" alt="License" class="img-fluid mb-2" style="max-height: 200px;">
+                                    {% endif %}
+                                </div>
+                                <input type="file" class="form-control" id="license" name="license" accept="image/*">
+                                <small class="text-muted">Upload a new license image if you want to update it</small>
+                            </div>
+                            <div class="form-group d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <a href="{% url 'delivery_system:delivery_profile' %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

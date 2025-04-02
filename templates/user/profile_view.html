@@ -1,0 +1,12 @@
+{% load static %}
+<div class="profile-container">
+    <h1 class="profile-title">Profile Details</h1>
+    <div class="profile-info">
+        <div class="profile-item"><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</div>
+        <div class="profile-item"><strong>Email:</strong> {{ user.email }}</div>
+        <div class="profile-item"><strong>Contact:</strong> {{ user.contact }}</div>
+        <div class="profile-item"><strong>House Name:</strong> {{ user.house_name }}</div>
+        <div class="profile-item"><strong>City:</strong> {{ user.city }}</div>
+        <div class="profile-item"><strong>Pincode:</strong> {{ user.postal_code }}</div>
+    </div>
+</div>

@@ -1,0 +1,52 @@
+{% extends 'shop/index.html' %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Edit Shop Details</h4>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="shop_name">Shop Name</label>
+                            <input type="text" class="form-control" id="shop_name" name="shop_name" value="{{ shop_details.shop_name }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="shop_location">Shop Location</label>
+                            <input type="text" class="form-control" id="shop_location" name="shop_location" value="{{ shop_details.shop_location }}" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="owner_name">Owner Name</label>
+                            <input type="text" class="form-control" id="owner_name" name="owner_name" value="{{ shop_details.user.username }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mobile_number">Mobile Number</label>
+                            <input type="text" class="form-control" id="mobile_number" name="mobile_number" value="{{ shop_details.mobile_number }}" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="shop_image">Shop Image</label>
+                            <input type="file" class="form-control" id="shop_image" name="shop_image" accept="image/*">
+                            <small>Leave blank to keep the current image.</small>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Shop</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

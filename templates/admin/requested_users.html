@@ -1,0 +1,101 @@
+{% extends 'admin/admin_index.html' %}
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Dashboard</h4>
+            <div class="row">
+                <div class="col-md-12"> <!-- Adjusted column width for the table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Requested Users</h4>
+                        </div>
+                        
+                        <div class="card-body">
+                            
+                            <div class="table-responsive">
+                                <table id="requestedUsersTable" class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 20%;">First Name</th>
+                                            <th style="width: 20%;">Last Name</th>
+                                            <th style="width: 30%;">Email ID</th>
+                                            <th style="width: 15%;">Status</th>
+                                            <th style="width: 15%;">ACTION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in requested_users %}
+                                        <tr>
+                                            <td>{{ user.first_name }}</td>
+                                            <td>{{ user.last_name }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>
+                                                {% for request in user.shoprequest.all %} <!-- Loop through related ShopRequests -->
+                                                    {{ request.status }} <!-- Display the status of each ShopRequest -->
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                <form action="{% url 'custom_admin:approve_user' user.id %}" method="post" class="approval-form">
+                                                    {% csrf_token %}
+                                                    {% if user.shoprequest.first.status == 'pending' %} <!-- Check the first ShopRequest status -->
+                                                    <button class="btn btn-primary toggle-approval" data-user-id="{{ user.id }}" data-is-shop="{{ user.is_shop }}">
+                                                        {% if user.is_shop %} Reject {% else %} Approve {% endif %}
+                                                    </button>
+                                                    {% else %}
+                                                    <span class="badge badge-secondary">{{ user.shoprequest.first.status }}</span> <!-- Display status if not pending -->
+                                                    {% endif %}
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="5">No requested users found.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Include DataTables JS and CSS -->
+                <link href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+                <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+                <style>
+                    /* Set the table to 100% width */
+                    .table-responsive {
+                        max-width: 100%; /* Full width */
+                        overflow-x: auto; /* Scroll for smaller screens */
+                    }
+                </style>
+                <script>
+                $(document).ready(function() {
+                    // Initialize DataTable
+                    var table = $('#requestedUsersTable').DataTable({
+                        "paging": true,
+                        "searching": true,
+                        "ordering": true,
+                        "info": true,
+                        "lengthChange": true
+                    });
+
+                    // Custom search input
+                    $('#customSearchInput').on('keyup', function() {
+                        table.search(this.value).draw(); // Link custom input to DataTable search
+                    });
+
+                    $('.toggle-approval').click(function(e) {
+                        e.preventDefault();
+                        var form = $(this).closest('.approval-form'); // Get the closest form
+                        form.submit(); // Submit the form to trigger the redirect
+                    });
+                });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

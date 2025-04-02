@@ -1,0 +1,33 @@
+{% extends 'admin/index.html' %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Category Requests</h4>
+            {% if category_requests %}
+                {% for request in category_requests %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ request.category_name }}</h5>
+                            <p class="card-text">{{ request.category_desc }}</p>
+                            <p class="card-text"><small class="text-muted">Requested by {{ request.user.username }} on {{ request.created_at|date:"F d, Y" }}</small></p>
+                            <form method="post" action="{% url 'custom_admin:handle_category_request' request.id %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="reason">Reason (if rejecting):</label>
+                                    <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>
+                                </div>
+                                <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                                <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No pending category requests.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

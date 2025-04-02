@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Hello, {{ user_name }}</h2>
+    <p>We regret to inform you that your request to become a shop owner on FishGrid has been rejected or removed.</p>
+    <p>If you believe this is an error or would like more information, please contact our support team.</p>
+    <p>Thank you for your interest in FishGrid.</p>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{% extends 'user/user_dashboard.html' %}
+
+{% block content %}
+<div class="main-content">
+    <h2 class="mb-4">Your Order History</h2>
+    {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Shop</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Total Price</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.shop.shop_name }}</td>
+                            <td>{{ order.order_date|date:"F d, Y" }}</td>
+                            <td>{{ order.order_time|time:"H:i" }}</td>
+                            <td>₹{{ order.total_price }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if order.status == 'pending' %}badge-warning
+                                    {% elif order.status == 'accepted' %}badge-info
+                                    {% elif order.status == 'picked_up' %}badge-primary
+                                    {% elif order.status == 'out_for_delivery' %}badge-info
+                                    {% elif order.status == 'delivered' %}badge-success
+                                    {% endif %}">
+                                    {{ order.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" type="button" data-toggle="collapse" data-target="#orderDetails{{ order.id }}" aria-expanded="false" aria-controls="orderDetails{{ order.id }}">
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="p-0">
+                                <div class="collapse" id="orderDetails{{ order.id }}">
+                                    <div class="card card-body">
+                                        <h5>Order Items:</h5>
+                                        <ul>
+                                            {% for item in order.order_details.all %}
+                                                <li>{{ item.product.product_name }} - Quantity: {{ item.quantity }} - Price: ₹{{ item.price }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                        <h5>Delivery Address:</h5>
+                                        <p>{{ order.address.name }}, {{ order.address.address }}, {{ order.address.phone }}</p>
+                                        {% if order.address.landmark %}
+                                            <p>Landmark: {{ order.address.landmark }}</p>
+                                        {% endif %}
+                                        <p>Pincode: {{ order.address.pincode }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>You haven't placed any orders yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

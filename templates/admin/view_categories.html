@@ -1,0 +1,77 @@
+{% extends "admin/admin_index.html" %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Categories</h4>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Manage Categories</div>
+                            <div class="card-category">
+                                <a href="{% url 'custom_admin:create_category' %}" class="btn btn-primary btn-sm">
+                                    <i class="la la-plus"></i> Create New Category
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if messages %}
+                            <div class="messages">
+                                {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for category in categories %}
+                                        <tr>
+                                            <td>{{ category.category_name }}</td>
+                                            <td>{{ category.category_desc }}</td>
+                                            <td>{% if category.is_active %}Active{% else %}Inactive{% endif %}</td>
+                                            <td>
+                                                <a href="{% url 'custom_admin:edit_category' category.id %}" class="btn btn-warning btn-sm">
+                                                    <i class="la la-edit"></i> Edit
+                                                </a>
+                                                <form action="{% url 'custom_admin:toggle_category' category.id %}" method="post" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-{% if category.is_active %}danger{% else %}success{% endif %} btn-sm">
+                                                        <i class="la la-{% if category.is_active %}times{% else %}check{% endif %}"></i> 
+                                                        {% if category.is_active %}Disable{% else %}Enable{% endif %}
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">No categories found.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

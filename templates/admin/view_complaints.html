@@ -1,0 +1,72 @@
+{% extends 'admin/admin_index.html' %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title mb-4">All Complaints</h4>
+            
+            {% if complaints %}
+                {% for complaint in complaints %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Complaint about {{ complaint.shop.shop_name }}</h5>
+                            <p class="card-text">{{ complaint.complaint_text }}</p>
+                            <p class="text-muted"><small>By {{ complaint.user.username }} on {{ complaint.created_at|date:"F d, Y" }}</small></p>
+                            
+                            <button class="btn btn-sm btn-info" type="button" data-toggle="collapse" data-target="#orderHistory{{ forloop.counter }}" aria-expanded="false" aria-controls="orderHistory{{ forloop.counter }}">
+                                View Order History
+                            </button>
+                            
+                            <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#replyForm{{ forloop.counter }}" aria-expanded="false" aria-controls="replyForm{{ forloop.counter }}">
+                                Reply to Complaint
+                            </button>
+                            
+                            <div class="collapse mt-3" id="orderHistory{{ forloop.counter }}">
+                                <h6>Order History:</h6>
+                                {% if complaint.user.user_orders %}
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Shop</th>
+                                                <th>Date</th>
+                                                <th>Total Price</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for order in complaint.user.user_orders %}
+                                                <tr>
+                                                    <td>{{ order.id }}</td>
+                                                    <td>{{ order.shop.shop_name }}</td>
+                                                    <td>{{ order.order_date }}</td>
+                                                    <td>₹{{ order.total_price }}</td>
+                                                    <td>{{ order.status }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% else %}
+                                    <p>No order history for this customer.</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="collapse mt-3" id="replyForm{{ forloop.counter }}">
+                                <h6>Reply to Complaint:</h6>
+                                <form action="{% url 'custom_admin:reply_to_complaint' complaint.id %}" method="post">
+                                    {% csrf_token %}
+                                    <p>This will send a pre-composed email asking the customer to contact our customer service.</p>
+                                    <button type="submit" class="btn btn-primary">Send Reply</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No complaints available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

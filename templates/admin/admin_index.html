@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	{% load static %}
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<title>Admin Dashboard</title>
+	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+	<link rel="stylesheet" href="{% static 'assets/css/ready.css' %}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}">
+
+	{% comment %} <script type="text/javascript" >
+        function preventBack(){window.history.forward();}
+         setTimeout("preventBack()", 0);
+         window.onunload=function(){null};
+     </script> {% endcomment %}
+
+
+	<style>
+		#logout-link{
+         margin-left:30px;
+		 
+		 margin-right: 5px; 
+		}
+		.logout-icon {
+			color: red; /* Color the icon red */
+			margin-right: 5px; /* Adjust the spacing as needed */
+		}
+		.blue-box .nav-item a:hover {
+			background-color: transparent !important;
+			box-shadow: none !important;
+		}
+	</style>
+</head>
+<body>
+	<div class="wrapper">
+		<div class="main-header">
+			<div class="logo-header">
+			
+					Administrator
+				</a>
+				<button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<button class="topbar-toggler more"><i class="la la-ellipsis-v"></i></button>
+			</div>
+			<nav class="navbar navbar-header navbar-expand-lg">
+				<div class="container-fluid">
+					
+					
+					<ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+						
+						<li class="nav-item dropdown hidden-caret">
+							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="la la-bell"></i>
+								
+							</a>
+							<ul class="dropdown-menu notif-box" aria-labelledby="navbarDropdown">
+								
+								<li>
+									<div class="notif-center">
+										<a href="#">
+											<div class="notif-icon notif-primary"> <i class="la la-user-plus"></i> </div>
+											<div class="notif-content">
+												<span class="block">
+													New user registered
+												</span>
+												<span class="time">5 minutes ago</span> 
+											</div>
+										</a>
+										
+							</ul>
+						</li>
+						<li>
+							 <span ><strong>fishgridin@gmail.com</strong></span>
+				
+				</nav>
+			</div>
+			<div class="sidebar">
+				<div class="scrollbar-inner sidebar-wrapper">
+					<div class="user">
+						
+						<div class="info">
+							{% comment %} <a class="" data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+								<span>
+									Cattlecare
+									<span class="user-level">Administrator</span>
+									{% comment %} <span class="caret"></span> {% endcomment %}
+								</span>
+							</a>
+							{% comment %} <div class="clearfix"></div> {% endcomment %}
+
+							{% comment %} <div class="collapse in" id="collapseExample" aria-expanded="true">
+								<ul class="nav">
+									<li>
+										<a href="#profile">
+											<span class="link-collapse">My Profile</span>
+										</a>
+									</li>
+									<li>
+										<a href="#edit">
+											<span class="link-collapse">Edit Profile</span>
+										</a>
+									</li>
+									
+								</ul>
+							</div> {% endcomment %}
+						</div>
+					</div>
+					<ul class="nav">
+						<li class="nav-item active">
+							<a href="{% url 'admin:index' %}">
+								<i class="la la-dashboard"></i>
+								<p>Dashboard</p>
+								
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="{% url 'custom_admin:requested_users' %}">  <!-- Update this line -->
+								<i class="la la-users"></i>
+								<p>Requested Users</p>
+								
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="{% url 'custom_admin:view_categories' %}">
+								<i class="fa fa-list" aria-hidden="true"></i>
+								<p>Categories</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="{% url 'custom_admin:view_category_requests' %}">
+								<i class="la la-list"></i>
+								<p>Category Requests</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="{% url 'custom_admin:view_complaints' %}">
+								<i class="la la-exclamation-circle"></i>
+								<p>View All Complaints</p>
+							</a>
+						</li>
+						
+					
+						<div class="blue-box" style="background-color: #007bff; width: 100%; padding: 6px; margin-top: 20px;">
+							<li class="nav-item">
+								<a href="{% url 'main:logout' %}" style="color: white;">
+									<i class="la la-power-off"></i>
+									<p>Logout</p>
+								</a>
+							</li>
+						</div>
+					</ul>
+				</div>
+			</div>
+			{% block content %}
+				
+			{% endblock %}
+</body>
+<script src="{% static 'assets/js/core/jquery.3.2.1.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js' %}"></script>
+<script src="{% static 'assets/js/core/popper.min.js' %}"></script>
+<script src="{% static 'assets/js/core/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/chartist/chartist.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/chartist/plugin/chartist-plugin-tooltip.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/jquery-mapael/jquery.mapael.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/jquery-mapael/maps/world_countries.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/chart-circle/circles.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js' %}"></script>
+<script src="{% static 'assets/js/ready.min.js' %}"></script>
+<script src="{% static 'assets/js/demo.js' %}"></script>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+    <style>
+        @font-face {
+            font-family: 'DejaVu Sans';
+            src: url('https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body { font-family: 'DejaVu Sans', Arial, sans-serif; }
+        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); font-size: 16px; line-height: 24px; }
+        .invoice-box table { width: 100%; line-height: inherit; text-align: left; }
+        .invoice-box table td { padding: 5px; vertical-align: top; }
+        .invoice-box table tr td:nth-child(2) { text-align: right; }
+        .invoice-box table tr.top table td { padding-bottom: 20px; }
+        .invoice-box table tr.information table td { padding-bottom: 40px; }
+        .invoice-box table tr.heading td { background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; }
+        .invoice-box table tr.details td { padding-bottom: 20px; }
+        .invoice-box table tr.item td { border-bottom: 1px solid #eee; }
+        .invoice-box table tr.item.last td { border-bottom: none; }
+        .invoice-box table tr.total td:nth-child(2) { border-top: 2px solid #eee; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="top">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td>
+                                Invoice #: {{ order.id }}<br>
+                                Created: {{ order.order_date }}<br>
+                                Due: {{ order.order_date }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="information">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td>
+                                {{ order.shop.shop_name }}<br>
+                                {{ order.shop.shop_location }}<br>
+                                {{ order.shop.pincode }}
+                            </td>
+                            <td>
+                                {{ order.address.name }}<br>
+                                {{ order.address.address }}<br>
+                                {{ order.address.pincode }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="heading">
+                <td>Item</td>
+                <td>Price</td>
+            </tr>
+            {% for item in order.order_details.all %}
+            <tr class="item">
+                <td>{{ item.product.product_name }} x {{ item.quantity }}</td>
+                <td>₹{{ item.price }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="total">
+                <td></td>
+                <td>Total: ₹{{ order.total_price }}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

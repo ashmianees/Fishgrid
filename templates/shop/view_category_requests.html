@@ -1,0 +1,48 @@
+{% extends 'shop/shop_index.html' %}
+
+{% block content %}
+<div class="main-panel">
+    <div class="content">
+        <div class="container-fluid">
+            <h4 class="page-title">Your Category Requests</h4>
+            {% if category_requests %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Reason (if rejected)</th>
+                                <th>Requested On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in category_requests %}
+                            <tr>
+                                <td>{{ request.category_name }}</td>
+                                <td>{{ request.category_desc }}</td>
+                                <td>
+                                    {% if request.status == 'pending' %}
+                                        <span class="badge badge-warning">Pending</span>
+                                    {% elif request.status == 'approved' %}
+                                        <span class="badge badge-success">Approved</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ request.reason|default:"-" }}</td>
+                                <td>{{ request.created_at|date:"F d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>You haven't made any category requests yet.</p>
+            {% endif %}
+            <a href="{% url 'shop:request_category' %}" class="btn btn-primary">Request New Category</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,270 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Assigned Work</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fontawesome.min.css' %}">
+    <style>
+        body {
+            background-color: #e9ecef; /* Light gray background */
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff; /* Blue header */
+            color: white; /* White text for better contrast */
+            display: flex; /* Use flexbox for alignment */
+            align-items: center; /* Center items vertically */
+        }
+        .card-header img {
+            width: 30px; /* Adjust logo size */
+            height: auto; /* Maintain aspect ratio */
+            margin-right: 10px; /* Space between logo and text */
+        }
+        .badge {
+            padding: 8px 12px;
+            font-size: 0.85em;
+        }
+        .badge-warning {
+            background-color: #ffc107; /* Yellow for pending */
+            color: #212529; /* Dark text */
+        }
+        .badge-info {
+            background-color: #17a2b8; /* Info color */
+            color: #fff; /* White text */
+        }
+        .badge-primary {
+            background-color: #007bff; /* Primary color */
+            color: #fff; /* White text */
+        }
+        .badge-success {
+            background-color: #28a745; /* Green for delivered */
+            color: #fff; /* White text */
+        }
+        .badge-secondary {
+            background-color: #6c757d; /* Gray for other statuses */
+            color: #fff; /* White text */
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <img src="{% static 'img/fish-log.png' %}" alt="FishGrid Logo">
+                        <h5>Delivery Partner Menu</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'delivery_system:delivery_dashboard' %}" class="list-group-item list-group-item-action">Dashboard</a>
+                        <a href="{% url 'delivery_system:delivery_profile' %}" class="list-group-item list-group-item-action">Profile</a>
+                        <a href="#orders-section" class="list-group-item list-group-item-action active">Orders</a>
+                        <a href="{% url 'delivery_system:delivery_logout' %}" class="list-group-item list-group-item-action">Logout</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header">
+                        <img src="{% static 'img/fish-log.png' %}" alt="FishGrid Logo">
+                        <h4>My Assigned Orders</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if assignments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Shop Name</th>
+                                        <th>Shop Location</th>
+                                        <th>Customer Address</th>
+                                        <th>Status</th>
+                                        <th>Assigned At</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for assignment in assignments %}
+                                    <tr>
+                                        <td>#{{ assignment.order.id }}</td>
+                                        <td>{{ assignment.order.shop.shop_name }}</td>
+                                        <td>{{ assignment.order.shop.shop_location }}</td>
+                                        <td>
+                                            {{ assignment.order.address.address }}<br>
+                                            <small class="text-muted">PIN: {{ assignment.order.address.pincode }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if assignment.status == 'pending' %}badge-warning
+                                                {% elif assignment.status == 'accepted' %}badge-info
+                                                {% elif assignment.status == 'picked_up' %}badge-primary
+                                                {% elif assignment.status == 'shipped' %}badge-secondary
+                                                {% elif assignment.status == 'delivered' %}badge-success
+                                                {% endif %}">
+                                                {{ assignment.status|title }}
+                                            </span>
+                                        </td>
+                                        <td>{{ assignment.assigned_at|date:"M d, Y H:i" }}</td>
+                                        <td>
+                                            {% if assignment.status == 'pending' %}
+                                            <button class="btn btn-sm btn-success update-status" 
+                                                    data-assignment-id="{{ assignment.id }}"
+                                                    data-status="accepted">
+                                                Accept
+                                            </button>
+                                            {% elif assignment.status == 'accepted' %}
+                                            <button class="btn btn-sm btn-primary update-status"
+                                                    data-assignment-id="{{ assignment.id }}"
+                                                    data-status="picked_up">
+                                                Mark as Picked Up
+                                            </button>
+                                            {% elif assignment.status == 'picked_up' %}
+                                            <button class="btn btn-sm btn-success update-status"
+                                                    data-assignment-id="{{ assignment.id }}"
+                                                    data-status="delivered">
+                                                Mark as Delivered
+                                            </button>
+                                            {% elif assignment.status == 'shipped' %}
+                                            <button class="btn btn-primary update-status" data-assignment-id="{{ assignment.id }}" data-status="shipped">Ship</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <h4>No orders assigned to you at the moment.</h4>
+                            <p class="text-muted">New orders will appear here when shops assign them to you.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="otpModal" tabindex="-1" role="dialog" aria-labelledby="otpModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="otpModalLabel">Enter OTP</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="otpInput" class="form-control" placeholder="Enter OTP">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="verifyOtp">Verify OTP</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+    $(document).ready(function() {
+        // Close modal when clicking the close button or outside the modal
+        $('.close, .btn-secondary').click(function() {
+            $('#otpModal').modal('hide');
+            $('#otpInput').val(''); // Clear OTP input when closing
+        });
+
+        $('.update-status').click(function() {
+            const assignmentId = $(this).data('assignment-id');
+            const newStatus = $(this).data('status');
+            
+            if (newStatus === 'delivered') {
+                // Show OTP modal only for delivery verification
+                $('#otpModal').modal('show');
+                $('#verifyOtp').data('assignment-id', assignmentId);
+                $('#verifyOtp').data('status', newStatus);
+            } else {
+                // Proceed with status update for other statuses (including picked_up)
+                updateStatus(assignmentId, newStatus);
+            }
+        });
+
+        $('#verifyOtp').click(function() {
+            const otp = $('#otpInput').val().trim();
+            const assignmentId = $(this).data('assignment-id');
+            const status = $(this).data('status');
+            
+            if (!otp) {
+                alert('Please enter the OTP');
+                return;
+            }
+            
+            $.ajax({
+                url: '{% url "delivery_system:verify_otp" %}',
+                type: 'POST',
+                data: {
+                    'assignment_id': assignmentId,
+                    'otp': otp,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // If OTP is verified, proceed with status update
+                        updateStatus(assignmentId, status);
+                        $('#otpModal').modal('hide');
+                        $('#otpInput').val(''); // Clear OTP input
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON || {};
+                    alert('Error: ' + (response.message || 'Failed to verify OTP. Please try again.'));
+                }
+            });
+        });
+
+        // Add keyboard event listener for ESC key
+        $(document).keydown(function(e) {
+            if (e.keyCode === 27) { // ESC key
+                $('#otpModal').modal('hide');
+                $('#otpInput').val(''); // Clear OTP input
+            }
+        });
+
+        function updateStatus(assignmentId, newStatus) {
+            $.ajax({
+                url: '{% url "delivery_system:update_delivery_status" %}',
+                type: 'POST',
+                data: {
+                    'assignment_id': assignmentId,
+                    'status': newStatus,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error updating delivery status. Please try again.');
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html>

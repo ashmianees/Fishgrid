@@ -1,0 +1,14 @@
+[2024-10-24 22:26:03] Starting the Selenium test for Edit Product...
+[2024-10-24 22:26:03] Browser window maximized.
+[2024-10-24 22:26:07] Navigated to shop login page.
+[2024-10-24 22:26:07] Email input field is visible.
+[2024-10-24 22:26:07] Entered email: ashmianees12@gmail.com
+[2024-10-24 22:26:07] Entered password: ********
+[2024-10-24 22:26:18] Clicked the login button.
+[2024-10-24 22:26:18] Login successful, URL changed.
+[2024-10-24 22:26:24] Navigated to Product page.
+[2024-10-24 22:26:24] Clicked edit button for the first product.
+[2024-10-24 22:26:25] Entered quantity: 2
+[2024-10-24 22:26:35] Clicked the save button.
+[2024-10-24 22:26:35] Edit Product test completed successfully.
+[2024-10-24 22:26:41] Browser closed. Test completed.
