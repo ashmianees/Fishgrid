@@ -399,3 +399,26 @@ class AquariumPricing(models.Model):
 
     def __str__(self):
         return f"Aquarium Pricing for {self.shop.shop_name}"
+
+class CustomAquarium(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    shop = models.ForeignKey(ShopDetails, on_delete=models.CASCADE)
+    length = models.IntegerField(help_text="Length in inches")
+    width = models.IntegerField(help_text="Width in inches")
+    height = models.IntegerField(help_text="Height in inches")
+    notes = models.TextField(blank=True, null=True)
+    base_price = models.DecimalField(max_digits=10, decimal_places=2)
+    length_adjustment = models.DecimalField(max_digits=10, decimal_places=2)
+    width_adjustment = models.DecimalField(max_digits=10, decimal_places=2)
+    height_adjustment = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled')
+    ], default='pending')
+
+    def __str__(self):
+        return f"Custom Aquarium {self.id} - {self.length}x{self.width}x{self.height} inches"

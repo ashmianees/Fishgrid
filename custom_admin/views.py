@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import get_user_model  # Use this to get the custom user model
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.contrib import messages
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -16,6 +16,13 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.db.models import Prefetch
+import xlsxwriter
+from io import BytesIO
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+import datetime
 
 @login_required
 def admin_index(request):
@@ -73,9 +80,12 @@ def approve_user(request, user_id):
 
     return redirect('custom_admin:requested_users')  # Redirect to the requested users view
 
+@login_required
 def view_customers(request):
-    User = get_user_model()   # Fetch all customers
-    return render(request, 'admin/view_users.html', {'User': User})
+    User = get_user_model()
+    # Fetch all customers (users with role='customer')
+    customers = User.objects.filter(role='customer').order_by('id')
+    return render(request, 'admin/customer_view.html', {'profiles': customers})
 
 @login_required
 @user_passes_test(is_admin)
@@ -253,3 +263,117 @@ def toggle_product(request, product_id):
     else:
         messages.error(request, 'You do not have permission to perform this action.')
     return redirect('shop:product_list', shop_id=product.shop.id)
+
+@login_required
+@user_passes_test(is_admin)
+def toggle_user(request, user_id):
+    User = get_user_model()
+    user = get_object_or_404(User, id=user_id)
+    user.is_active = not user.is_active
+    user.save()
+    return redirect('custom_admin:view_customers')
+
+@login_required
+@user_passes_test(is_admin)
+def download_customers_excel(request):
+    # Create a new workbook and add a worksheet
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+
+    # Add a bold format
+    bold = workbook.add_format({'bold': True})
+
+    # Write headers
+    headers = ['Sl No', 'Name', 'Email', 'Contact', 'House Name', 'City', 'Postal Code', 'Status']
+    for col, header in enumerate(headers):
+        worksheet.write(0, col, header, bold)
+
+    # Get all customers
+    User = get_user_model()
+    customers = User.objects.filter(role='customer').order_by('id')
+
+    # Write data rows
+    for row, customer in enumerate(customers, start=1):
+        worksheet.write(row, 0, row)  # Sl No
+        worksheet.write(row, 1, f"{customer.first_name} {customer.last_name}")
+        worksheet.write(row, 2, customer.email)
+        worksheet.write(row, 3, customer.contact)
+        worksheet.write(row, 4, customer.house_name)
+        worksheet.write(row, 5, customer.city)
+        worksheet.write(row, 6, customer.postal_code)
+        worksheet.write(row, 7, 'Active' if customer.is_active else 'Inactive')
+
+    # Close the workbook
+    workbook.close()
+
+    # Create the HttpResponse with Excel content type
+    output.seek(0)
+    filename = f'customers_list_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    response = HttpResponse(
+        output.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+@login_required
+@user_passes_test(is_admin)
+def download_customers_pdf(request):
+    # Create the HttpResponse object with PDF headers
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    elements = []
+
+    # Get the stylesheet
+    styles = getSampleStyleSheet()
+
+    # Add title
+    elements.append(Paragraph("Customer List", styles['Heading1']))
+    elements.append(Paragraph(f"Generated on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+
+    # Get all customers
+    User = get_user_model()
+    customers = User.objects.filter(role='customer').order_by('id')
+
+    # Prepare data for table
+    data = [['Sl No', 'Name', 'Email', 'Contact', 'House Name', 'City', 'Postal Code', 'Status']]
+    for i, customer in enumerate(customers, start=1):
+        data.append([
+            i,
+            f"{customer.first_name} {customer.last_name}",
+            customer.email,
+            customer.contact,
+            customer.house_name,
+            customer.city,
+            customer.postal_code,
+            'Active' if customer.is_active else 'Inactive'
+        ])
+
+    # Create table
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 12),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    elements.append(table)
+
+    # Build PDF document
+    doc.build(elements)
+
+    # FileResponse sets the Content-Disposition header
+    buffer.seek(0)
+    filename = f'customers_list_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

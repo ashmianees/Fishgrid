@@ -74,6 +74,11 @@ urlpatterns = [
     path('complete-payment/', views.complete_payment, name='complete_payment'),
     path('api/calculate-aquarium-price/', views.calculate_aquarium_price, name='calculate_aquarium_price'),
     path('aquarium-pricing/', views.aquarium_pricing, name='aquarium_pricing'),
+    path('create-custom-aquarium/', views.create_custom_aquarium, name='create_custom_aquarium'),
+    path('view-complaints/<int:shop_id>/', views.view_complaints, name='view_complaints'),
+    path('view-feedback-complaints/<int:shop_id>/', views.view_feedback_complaints, name='view_feedback_complaints'),
+    path('download-orders/excel/<int:shop_id>/', views.download_orders_excel, name='download_orders_excel'),
+    path('download-orders/pdf/<int:shop_id>/', views.download_orders_pdf, name='download_orders_pdf'),
 ]
 
 

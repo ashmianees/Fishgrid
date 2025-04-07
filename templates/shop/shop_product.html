@@ -48,7 +48,7 @@
                                                 {% endif %}
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-info view-btn" data-id="{{ product.id }}" data-name="{{ product.product_name }}" data-description="{{ product.product_description }}" data-size="{{ product.size }}" data-quantity="{{ product.quantity }}" data-price="{{ product.price }}" data-category="{{ product.categories.id }}" data-categoris="{{ categories.category_name }}" data-image="{{ product.image.url }}">View Product</button>
+                                                <button class="btn btn-sm btn-info view-btn" data-id="{{ product.id }}" data-name="{{ product.product_name }}" data-description="{{ product.product_description }}" data-size="{{ product.size }}" data-quantity="{{ product.quantity }}" data-price="{{ product.price }}" data-category="{{ product.categories.id }}" data-categoris="{{ categories.category_name }}" {% if product.image %}data-image="{{ product.image.url }}"{% endif %}>View Product</button>
                                                 <button class="btn btn-sm btn-primary edit-btn" 
                                                     data-id="{{ product.id }}" 
                                                     data-name="{{ product.product_name }}" 
@@ -334,7 +334,13 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('view_product_size').innerText = this.dataset.size;
             document.getElementById('view_product_quantity').innerText = this.dataset.quantity;
             document.getElementById('view_product_price').innerText = this.dataset.price;
-            document.getElementById('view_product_image').src = this.dataset.image; // Ensure you pass image URL in data attributes
+            const imageElement = document.getElementById('view_product_image');
+            if (this.dataset.image) {
+                imageElement.src = this.dataset.image;
+                imageElement.style.display = 'block';
+            } else {
+                imageElement.style.display = 'none';
+            }
             $('#viewProductModal').modal('show');
         });
     });

@@ -1,0 +1,93 @@
+{% extends 'user/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Custom Aquarium Orders</h4>
+            <span class="badge badge-light">Total Orders: {{ custom_orders|length }}</span>
+        </div>
+        <div class="card-body">
+            {% if custom_orders %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Dimensions</th>
+                            <th>Base Price</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in custom_orders %}
+                        <tr>
+                            <td><strong>#{{ order.id }}</strong></td>
+                            <td>{{ order.length }}L × {{ order.width }}W × {{ order.height }}H</td>
+                            <td>₹{{ order.base_price }}</td>
+                            <td class="text-success font-weight-bold">₹{{ order.total_price }}</td>
+                            <td>
+                                <span class="badge badge-success">
+                                    <i class="fas fa-check-circle mr-1"></i> {{ order.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+                            <td>{{ order.notes|default:"No notes" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <img src="{% static 'images/no-orders.png' %}" alt="No Orders" style="width: 150px; opacity: 0.5;">
+                <h5 class="mt-3 text-muted">No custom aquarium orders found</h5>
+                <p class="text-muted">Start designing your dream aquarium today!</p>
+                <a href="{% url 'shop:aquarium_builder' %}" class="btn btn-primary mt-2">
+                    <i class="fas fa-plus"></i> Create Custom Aquarium
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+    .badge-light {
+        font-size: 1em;
+        padding: 8px 15px;
+    }
+    .table td {
+        vertical-align: middle;
+    }
+    .card {
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .table-responsive {
+        border-radius: .25rem;
+    }
+    .text-success {
+        color: #28a745 !important;
+    }
+    .table thead th {
+        border-top: none;
+        background-color: #f8f9fa;
+    }
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease;
+    }
+</style>
+{% endblock %}

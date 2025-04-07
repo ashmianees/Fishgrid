@@ -10,6 +10,7 @@ urlpatterns = [
     path('requested-users/',views.requested_users_view, name='requested_users'),
     path('approve-user/<int:user_id>/',views. approve_user, name='approve_user'),  # New URL for approval
     path('view_customers/', views.view_customers, name='view_customers'),  # URL for viewing customers
+    path('toggle-user/<int:user_id>/', views.toggle_user, name='toggle_user'),  # URL for toggling user status
 
     path('categories/', views.view_categories, name='view_categories'),
     path('categories/create/', views.create_category, name='create_category'),
@@ -20,4 +21,6 @@ urlpatterns = [
     path('handle-category-request/<int:request_id>/', views.handle_category_request, name='handle_category_request'),
     path('complaints/', views.admin_view_complaints, name='view_complaints'),
     path('reply-to-complaint/<int:complaint_id>/', views.admin_reply_to_complaint, name='reply_to_complaint'),
+    path('download-customers/excel/', views.download_customers_excel, name='download_customers_excel'),
+    path('download-customers/pdf/', views.download_customers_pdf, name='download_customers_pdf'),
 ]

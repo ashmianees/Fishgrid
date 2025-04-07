@@ -73,6 +73,23 @@
             -moz-appearance: none;
             background: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") no-repeat right 0.75rem center/8px 10px;
         }
+        .custom-aquarium-btn {
+            background-color: #00838f;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .custom-aquarium-btn:hover {
+            background-color: #006064;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 96, 100, 0.2);
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -110,6 +127,9 @@
         <div class="shop-header text-center mb-5">
             <h1>{{ shop.shop_name }}</h1>
             <p class="lead">Discover our amazing aquatic products!</p>
+            <a href="{% url 'shop:create_custom_aquarium' %}" class="custom-aquarium-btn">
+                <i class="fas fa-fish"></i> Create Custom Aquarium
+            </a>
         </div>
         
         <div class="filter-form mb-5">

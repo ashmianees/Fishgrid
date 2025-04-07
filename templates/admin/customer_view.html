@@ -9,10 +9,18 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">User List</div>
-                            <div class="float-right">
-                                <input type="text" id="userSearch" class="form-control form-control-sm rounded-pill" placeholder="Search users..." style="width: 200px; border-radius: 50px;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card-title">Customer List</div>
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">
+                                    <a href="{% url 'custom_admin:download_customers_excel' %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-file-excel mr-1"></i> Download Excel
+                                    </a>
+                                    <a href="{% url 'custom_admin:download_customers_pdf' %}" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-file-pdf mr-1"></i> Download PDF
+                                    </a>
+                                </div>
+                                <input type="text" id="userSearch" class="form-control form-control-sm rounded-pill" placeholder="Search customers..." style="width: 200px; border-radius: 50px;">
                             </div>
                         </div>
                         <div class="card-body">
@@ -25,7 +33,9 @@
                                             <th>Email</th>
                                             <th>Contact</th>
                                             <th>House Name</th>
-                                            <th>Actions</th>
+                                            <th>City</th>
+                                            <th>Postal Code</th>
+                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -39,7 +49,7 @@
                                             <td>{{ user.city }}</td>
                                             <td>{{ user.postal_code }}</td>
                                             <td>
-                                                <a href="{% url 'toggleusers' user.id %}" class="btn {% if user.is_active %}btn-success{% else %}btn-danger{% endif %} toggle-btn" data-user-id="{{ user.id }}">
+                                                <a href="{% url 'custom_admin:toggle_user' user.id %}" class="btn btn-sm {% if user.is_active %}btn-success{% else %}btn-danger{% endif %} toggle-btn" data-user-id="{{ user.id }}">
                                                     {% if user.is_active %}Active{% else %}Inactive{% endif %}
                                                 </a>
                                             </td>
@@ -48,7 +58,7 @@
                                     </tbody>
                                 </table>
                                 <div id="noDataFound" style="display: none; text-align: center; padding: 20px;">
-                                    No data found.
+                                    No customers found.
                                 </div>
                             </div>
                         </div>

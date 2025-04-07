@@ -75,36 +75,6 @@
 
                                 <button type="submit" class="btn btn-primary">Save Pricing Configuration</button>
                             </form>
-
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title">Price Calculator</h5>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group mb-3">
-                                                <label for="calc_length">Length (inches)</label>
-                                                <input type="number" class="form-control" id="calc_length" min="1">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group mb-3">
-                                                <label for="calc_width">Width (inches)</label>
-                                                <input type="number" class="form-control" id="calc_width" min="1">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group mb-3">
-                                                <label for="calc_height">Height (inches)</label>
-                                                <input type="number" class="form-control" id="calc_height" min="1">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn btn-primary" id="calculate_price">Calculate Price</button>
-                                    <div class="alert alert-info mt-3" id="price_result" style="display: none;">
-                                        <h6 class="mb-0">Estimated Price: <span id="calculated_price">$0.00</span></h6>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -112,36 +82,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function() {
-        $('#calculate_price').click(function() {
-            const length = parseFloat($('#calc_length').val());
-            const width = parseFloat($('#calc_width').val());
-            const height = parseFloat($('#calc_height').val());
-            
-            if (length && width && height) {
-                $.ajax({
-                    url: "{% url 'shop:calculate_aquarium_price' %}",
-                    method: 'POST',
-                    data: {
-                        length: length,
-                        width: width,
-                        height: height,
-                        csrfmiddlewaretoken: '{{ csrf_token }}'
-                    },
-                    success: function(response) {
-                        $('#calculated_price').text('$' + response.price.toFixed(2));
-                        $('#price_result').show();
-                    },
-                    error: function() {
-                        alert('Error calculating price. Please try again.');
-                    }
-                });
-            } else {
-                alert('Please enter all dimensions');
-            }
-        });
-    });
-</script>
 {% endblock %} 

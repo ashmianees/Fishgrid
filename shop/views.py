@@ -1,9 +1,9 @@
-from django.http import Http404, JsonResponse, HttpResponseBadRequest
+from django.http import Http404, JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.contrib.auth import authenticate
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from shop.models import ShopDetails, Product, Feedback, Address, Order, Complaint, AquariumPricing
+from shop.models import ShopDetails, Product, Feedback, Address, Order, Complaint, AquariumPricing, CustomAquarium, Wishlist
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from shop.models import Payment
@@ -11,7 +11,7 @@ import razorpay
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import Cart, CartItem, Category, Complaint, Wishlist
+from .models import Cart, CartItem, Category, Complaint, AquariumDesign
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from .models import Product, Feedback, ShopDetails
@@ -51,6 +51,12 @@ from .models import (
 )
 from datetime import datetime
 from .models import OrderDeliveryAssignment  # Add this import
+from io import BytesIO
+import xlsxwriter
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 
 logger = logging.getLogger(__name__)
 
@@ -1877,3 +1883,294 @@ def calculate_aquarium_price(request):
         return JsonResponse({'price': float(price)})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+@login_required
+def create_custom_aquarium(request):
+    try:
+        # Get all shops with their pricing configurations
+        shops = ShopDetails.objects.prefetch_related('aquarium_pricing').all()
+        
+        if request.method == 'POST':
+            if 'razorpay_payment_id' in request.POST:
+                # This is a payment verification request
+                payment_id = request.POST.get('razorpay_payment_id')
+                order_id = request.POST.get('razorpay_order_id')
+                signature = request.POST.get('razorpay_signature')
+                custom_aquarium_id = request.POST.get('custom_aquarium_id')
+                
+                logger.info(f"Processing payment for custom aquarium ID: {custom_aquarium_id}")
+                
+                try:
+                    # Get the custom aquarium
+                    custom_aquarium = CustomAquarium.objects.get(id=custom_aquarium_id, user=request.user)
+                    
+                    # Verify payment signature
+                    params_dict = {
+                        'razorpay_payment_id': payment_id,
+                        'razorpay_order_id': order_id,
+                        'razorpay_signature': signature
+                    }
+                    
+                    razorpay_client.utility.verify_payment_signature(params_dict)
+                    
+                    # Get or create default address
+                    default_address, created = Address.objects.get_or_create(
+                        user=request.user,
+                        defaults={
+                            'name': request.user.get_full_name() or request.user.username,
+                            'address': f'Custom Aquarium Order - {custom_aquarium.length}x{custom_aquarium.width}x{custom_aquarium.height}',
+                            'phone': '',
+                            'pincode': custom_aquarium.shop.pincode,
+                            'landmark': 'Custom Aquarium Order'
+                        }
+                    )
+
+                    # Create order record
+                    order = Order.objects.create(
+                        user=request.user,
+                        shop=custom_aquarium.shop,
+                        address=default_address,
+                        total_price=custom_aquarium.total_price,
+                        status='Processing'
+                    )
+
+                    # Create order details
+                    OrderDetails.objects.create(
+                        order=order,
+                        product=None,
+                        price=custom_aquarium.total_price,
+                        quantity=1
+                    )
+
+                    # Create payment record
+                    Payment.objects.create(
+                        order=order,
+                        payment_id=payment_id,
+                        amount=custom_aquarium.total_price,
+                        status='Completed'
+                    )
+
+                    # Update custom aquarium status
+                    custom_aquarium.status = 'processing'
+                    custom_aquarium.save()
+
+                    logger.info(f"Successfully processed payment for custom aquarium ID: {custom_aquarium_id}, Order ID: {order.id}")
+                    
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': f'Payment successful! Your custom aquarium order #{order.id} is being processed.',
+                        'order_id': order.id
+                    })
+                    
+                except CustomAquarium.DoesNotExist:
+                    logger.error(f"Custom aquarium not found for ID: {custom_aquarium_id}")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Custom aquarium not found.'
+                    }, status=404)
+                except razorpay.errors.SignatureVerificationError as e:
+                    logger.error(f"Payment verification failed: {str(e)}")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Payment verification failed.'
+                    }, status=400)
+                except Exception as e:
+                    logger.error(f"Error processing payment: {str(e)}")
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': str(e)
+                    }, status=400)
+            
+            else:
+                # This is the initial custom aquarium creation request
+                shop_id = request.POST.get('shop')
+                shop = get_object_or_404(ShopDetails, id=shop_id)
+                pricing = get_object_or_404(AquariumPricing, shop=shop)
+                
+                length = float(request.POST.get('length'))
+                width = float(request.POST.get('width'))
+                height = float(request.POST.get('height'))
+                notes = request.POST.get('notes', '')
+                
+                # Calculate price using shop's specific pricing
+                base_price = float(pricing.base_price)
+                base_length = float(pricing.base_length)
+                base_width = float(pricing.base_width)
+                base_height = float(pricing.base_height)
+                length_multiplier = float(pricing.length_multiplier)
+                width_multiplier = float(pricing.width_multiplier)
+                height_multiplier = float(pricing.height_multiplier)
+                
+                length_adjustment = max(0, (length - base_length)) * length_multiplier
+                width_adjustment = max(0, (width - base_width)) * width_multiplier
+                height_adjustment = max(0, (height - base_height)) * height_multiplier
+                total_price = base_price + length_adjustment + width_adjustment + height_adjustment
+                
+                # Create custom aquarium
+                custom_aquarium = CustomAquarium.objects.create(
+                    user=request.user,
+                    shop=shop,
+                    length=length,
+                    width=width,
+                    height=height,
+                    notes=notes,
+                    base_price=base_price,
+                    length_adjustment=length_adjustment,
+                    width_adjustment=width_adjustment,
+                    height_adjustment=height_adjustment,
+                    total_price=total_price,
+                    status='paid'
+                )
+                
+                # Create Razorpay order
+                razorpay_order = razorpay_client.order.create({
+                    'amount': int(total_price * 100),
+                    'currency': 'INR',
+                    'payment_capture': '1'
+                })
+                
+                logger.info(f"Created custom aquarium ID: {custom_aquarium.id} with Razorpay order ID: {razorpay_order['id']}")
+                
+                return JsonResponse({
+                    'status': 'success',
+                    'order_id': razorpay_order['id'],
+                    'amount': int(total_price * 100),
+                    'key': settings.RAZORPAY_KEY_ID,
+                    'custom_aquarium_id': custom_aquarium.id
+                })
+        
+        # GET request - render the form
+        context = {
+            'shops': shops,
+            'razorpay_key_id': settings.RAZORPAY_KEY_ID,
+        }
+        return render(request, 'shop/create_custom_aquarium.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error in create_custom_aquarium: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+@login_required
+def download_orders_excel(request, shop_id):
+    shop = get_object_or_404(ShopDetails, id=shop_id, user=request.user)
+    orders = Order.objects.filter(shop=shop).order_by('-order_date', '-order_time')
+
+    # Create a new workbook and add a worksheet
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+
+    # Add formats
+    bold = workbook.add_format({'bold': True})
+    money_format = workbook.add_format({'num_format': '₹#,##0.00'})
+    date_format = workbook.add_format({'num_format': 'yyyy-mm-dd'})
+    time_format = workbook.add_format({'num_format': 'hh:mm:ss'})
+
+    # Write headers
+    headers = ['Order ID', 'Customer', 'Date', 'Time', 'Total', 'Status']
+    for col, header in enumerate(headers):
+        worksheet.write(0, col, header, bold)
+
+    # Write data rows
+    total_earned = 0
+    for row, order in enumerate(orders, start=1):
+        worksheet.write(row, 0, order.id)
+        worksheet.write(row, 1, order.user.email)
+        worksheet.write(row, 2, order.order_date, date_format)
+        worksheet.write(row, 3, order.order_time.strftime('%H:%M:%S'), time_format)
+        worksheet.write(row, 4, float(order.total_price), money_format)
+        worksheet.write(row, 5, order.status)
+        total_earned += float(order.total_price)
+
+    # Write total
+    bold_money = workbook.add_format({'bold': True, 'num_format': '₹#,##0.00'})
+    row = len(orders) + 2
+    worksheet.write(row, 3, 'Total Earned:', bold)
+    worksheet.write(row, 4, total_earned, bold_money)
+
+    # Auto-adjust column widths
+    for col in range(len(headers)):
+        worksheet.set_column(col, col, 15)
+
+    workbook.close()
+
+    # Create the HttpResponse
+    output.seek(0)
+    filename = f'orders_list_{shop.shop_name}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    response = HttpResponse(
+        output.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+@login_required
+def download_orders_pdf(request, shop_id):
+    shop = get_object_or_404(ShopDetails, id=shop_id, user=request.user)
+    orders = Order.objects.filter(shop=shop).order_by('-order_date', '-order_time')
+
+    # Create the PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    elements = []
+
+    # Get the stylesheet
+    styles = getSampleStyleSheet()
+
+    # Add title and shop info
+    elements.append(Paragraph(f"Orders List - {shop.shop_name}", styles['Heading1']))
+    elements.append(Paragraph(f"Generated on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+    elements.append(Spacer(1, 20))
+
+    # Prepare data for table
+    data = [['Order ID', 'Customer', 'Date', 'Time', 'Total', 'Status']]
+    total_earned = 0
+    for order in orders:
+        data.append([
+            str(order.id),
+            order.user.email,
+            order.order_date.strftime('%Y-%m-%d'),
+            order.order_time.strftime('%H:%M:%S'),
+            f'₹{order.total_price:.2f}',
+            order.status
+        ])
+        total_earned += float(order.total_price)
+
+    # Add total row
+    data.append(['', '', '', 'Total Earned:', f'₹{total_earned:.2f}', ''])
+
+    # Create table
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        # Style for total row
+        ('BACKGROUND', (0, -1), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, -1), (-1, -1), colors.whitesmoke),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+    ]))
+    elements.append(table)
+
+    # Build PDF document
+    doc.build(elements)
+
+    # Create the response
+    buffer.seek(0)
+    filename = f'orders_list_{shop.shop_name}_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+

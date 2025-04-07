@@ -387,6 +387,14 @@
                     </a>
                 </div>
                 
+                <!-- Add Custom Aquarium Orders link -->
+                <div class="sidebar-item" id="customAquariumOrders">
+                    <a href="{% url 'user:view_custom_order' %}" class="load-content">
+                        <i class="fas fa-water"></i>
+                        <span>Custom Aquarium Orders</span>
+                    </a>
+                </div>
+                
                 <div class="sidebar-item">
                     <a id="logout-link" href="{% url 'main:logout' %}" style="color: inherit; text-decoration: none;">
                         <i class="fas fa-sign-out-alt"></i>
@@ -419,22 +427,8 @@
                 $.ajax({
                     url: url,
                     type: 'GET',
-                    dataType: 'html',  // Change this to 'html'
                     success: function(data) {
-                        try {
-                            // Try to parse the response as JSON
-                            var jsonData = JSON.parse(data);
-                            if (jsonData.orders) {
-                                // If it's order history data, render it
-                                renderOrderHistory(JSON.parse(jsonData.orders));
-                            } else {
-                                // For other JSON data, handle accordingly
-                                $('#contentArea').html(JSON.stringify(jsonData));
-                            }
-                        } catch (e) {
-                            // If it's not JSON, it's probably HTML content
-                            $('#contentArea').html(data);
-                        }
+                        $('#contentArea').html(data);
                     },
                     error: function(xhr, status, error) {
                         console.error("Error loading content:", error);
@@ -516,6 +510,14 @@
                         });
                     }
                 });
+            });
+
+            // Handle Custom Aquarium Orders click
+            $('#customAquariumOrders').click(function(e) {
+                e.preventDefault();
+                $('.sidebar-item').removeClass('active');
+                $(this).addClass('active');
+                loadContent("{% url 'user:view_custom_order' %}");
             });
         });
 

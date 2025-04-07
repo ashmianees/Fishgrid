@@ -99,7 +99,11 @@
                 <div class="cart-item" data-item-id="{{ item.id }}">
                     <div class="row align-items-center">
                         <div class="col-md-2">
-                            <img src="{{ item.product.image.url }}" alt="{{ item.product.product_name }}" class="img-fluid">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.product_name }}" class="img-fluid">
+                            {% else %}
+                                <img src="https://via.placeholder.com/100x100?text=No+Image" alt="{{ item.product.product_name }}" class="img-fluid">
+                            {% endif %}
                         </div>
                         <div class="col-md-4">
                             <h5>{{ item.product.product_name }}</h5>

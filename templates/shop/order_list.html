@@ -8,8 +8,19 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <div class="card-title">Order List</div>
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3">
+                                    <a href="{% url 'shop:download_orders_excel' shop_detail.id %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-file-excel mr-1"></i> Download Excel
+                                    </a>
+                                    <a href="{% url 'shop:download_orders_pdf' shop_detail.id %}" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-file-pdf mr-1"></i> Download PDF
+                                    </a>
+                                </div>
+                                <input type="text" id="orderSearch" class="form-control form-control-sm rounded-pill" placeholder="Search orders..." style="width: 200px; border-radius: 50px;">
+                            </div>
                         </div>
                         <div class="card-body">
                             <table class="table table-striped mt-3">
@@ -21,22 +32,20 @@
                                         <th>Time</th>
                                         <th>Total</th>
                                         <th>Status</th>
-                                  
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="orderTableBody">
                                     {% for order in orders %}
-                                    <tr>
+                                    <tr class="order-row">
                                         <td>{{ order.id }}</td>
                                         <td>{{ order.user.email }}</td>
                                         <td>{{ order.order_date }}</td>
                                         <td>{{ order.order_time }}</td>
                                         <td class="order-total" data-total="{{ order.total_price }}">₹{{ order.total_price }}</td>
                                         <td>{{ order.status }}</td>
-                                        
                                     </tr>
                                     {% empty %}
-                                    <tr>
+                                    <tr id="noOrdersRow">
                                         <td colspan="7" class="text-center">No orders found.</td>
                                     </tr>
                                     {% endfor %}
@@ -48,6 +57,9 @@
                                     </tr>
                                 </tfoot>
                             </table>
+                            <div id="noSearchResults" style="display: none;" class="text-center mt-3">
+                                No matching orders found.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -58,15 +70,51 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const orderTotals = document.querySelectorAll('.order-total');
-        let totalMoneyEarned = 0;
+        // Calculate total money earned
+        function calculateTotal() {
+            const orderTotals = document.querySelectorAll('.order-total:not([style*="display: none"])');
+            let totalMoneyEarned = 0;
 
-        orderTotals.forEach(function(orderTotal) {
-            totalMoneyEarned += parseFloat(orderTotal.dataset.total);
+            orderTotals.forEach(function(orderTotal) {
+                totalMoneyEarned += parseFloat(orderTotal.dataset.total);
+            });
+
+            const totalMoneyEarnedElement = document.getElementById('total-money-earned');
+            totalMoneyEarnedElement.innerHTML = '<strong>₹' + totalMoneyEarned.toFixed(2) + '</strong>';
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('orderSearch');
+        const orderRows = document.querySelectorAll('.order-row');
+        const noSearchResults = document.getElementById('noSearchResults');
+        const noOrdersRow = document.getElementById('noOrdersRow');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            let hasVisibleRows = false;
+
+            orderRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    hasVisibleRows = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results message
+            noSearchResults.style.display = hasVisibleRows ? 'none' : 'block';
+            if (noOrdersRow) {
+                noOrdersRow.style.display = 'none';
+            }
+
+            // Recalculate total for visible rows
+            calculateTotal();
         });
 
-        const totalMoneyEarnedElement = document.getElementById('total-money-earned');
-        totalMoneyEarnedElement.innerHTML = '<strong>₹' + totalMoneyEarned.toFixed(2) + '</strong>';
+        // Initial total calculation
+        calculateTotal();
     });
 </script>
 {% endblock %}

@@ -23,5 +23,5 @@ urlpatterns = [
     path('chatbot/', chatbot_view, name='chatbot_view'),
     path('disease-detection/', views.disease_detection, name='disease_detection'),
     path('predict-disease/', views.predict_disease, name='predict_disease'),
-   
+    path('view-custom-order/', views.view_custom_order, name='view_custom_order'),
 ]

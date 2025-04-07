@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from .models import ShopRequest, ChatSession, ChatMessage, ChatbotKnowledge  # Import ShopRequest model
 from django.views import View
 from django.shortcuts import render, get_object_or_404
-from shop.models import ShopDetails,Product, Order, OrderDetails
+from shop.models import ShopDetails,Product, Order, OrderDetails, CustomAquarium
 from django.views.decorators.cache import never_cache
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -578,4 +578,25 @@ def load_model():
     except Exception as e:
         print(f"Error in load_model: {str(e)}")
         raise Exception(f"Failed to load the disease detection model: {str(e)}")
+
+@login_required
+def view_custom_order(request):
+    # Get all completed orders for the current user
+    custom_orders = CustomAquarium.objects.filter(
+        user_id=request.user.id,
+        status='completed'  # Changed from 'paid' to 'completed'
+    ).order_by('-created_at')
+    
+    # Add debug information
+    print(f"User ID: {request.user.id}")
+    print(f"Found orders: {custom_orders.count()}")
+    for order in custom_orders:
+        print(f"Order ID: {order.id}, Status: {order.status}, User: {order.user_id}")
+    
+    context = {
+        'custom_orders': custom_orders,
+        'title': 'Custom Aquarium Orders',
+        'user_id': request.user.id
+    }
+    return render(request, 'user/view_customOrder.html', context)
 
