@@ -213,8 +213,25 @@
         {% block content %}
         <!-- Main Panel -->
         <div class="main-panel">
+            <!-- Header -->
+            <div class="container-fluid py-3" style="background-color: white; border-bottom: 1px solid #e0e0e0;">
+                <div class="row align-items-center">
+                    <div class="col-4">
+                        <!-- Empty space for alignment -->
+                    </div>
+                    <div class="col-4 text-center">
+                        <h2 style="color: #2B3DB6; margin: 0;">Fish Grid</h2>
+                    </div>
+                    <div class="col-4 text-right">
+                        <span style="color: #666;">
+                            <i class="la la-user"></i>
+                            Welcome, {{ request.user.username }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
             <div class="content-wrapper">
-                
                 <div class="container-fluid">
                     <!-- Existing shop dashboard content -->
                     
