@@ -1,7 +1,6 @@
 {% extends 'shop/shop_index.html' %}
 
 {% block content %}
-<div class="main-panel">
     <div class="content">
         <div class="container-fluid">
             <h4 class="page-title">Recommended Products for Your Shop</h4>
@@ -9,16 +8,13 @@
             <div class="row" id="product-list">
                 {% include 'shop/product_card.html' %}
             </div>
-            
         </div>
     </div>
-</div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
+<script type="text/javascript">
 $(document).ready(function() {
     var offset = {{ recommended_products|length }};
     var loading = false;
