@@ -91,11 +91,11 @@ WSGI_APPLICATION = 'fish_grid.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fishgrid',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': 'fishgrid_driedlieof',
+        'USER': 'fishgrid_driedlieof',
+        'PASSWORD': '5e10b74a39958abdbf7c32a04f297f7909b5917d',
+        'HOST': 'glc6n.h.filess.io',
+        'PORT': '61000',
         'OPTIONS': {
             'charset': 'utf8mb4',
             'init_command': 'SET character_set_connection=utf8mb4;'
